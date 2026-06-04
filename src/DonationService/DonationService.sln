@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36429.23 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DonationService.WebApi", "DonationService.WebApi\DonationService.WebApi.csproj", "{840A8058-40E3-43CD-A89B-EED4106713F3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{840A8058-40E3-43CD-A89B-EED4106713F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{840A8058-40E3-43CD-A89B-EED4106713F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{840A8058-40E3-43CD-A89B-EED4106713F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{840A8058-40E3-43CD-A89B-EED4106713F3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B6EE33ED-8190-438C-808D-9997FCF0B4C3}
+	EndGlobalSection
+EndGlobal

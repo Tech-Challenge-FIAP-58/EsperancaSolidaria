@@ -1,0 +1,6 @@
+@CampaignService.WebApi_HostAddress = http://localhost:5149
+
+GET {{CampaignService.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

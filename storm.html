@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Storming — Conexão Solidária (3 Microsserviços)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#07090f;
+  --surface:#0d1117;
+  --card:#111827;
+  --border:#1f2937;
+  --text:#d1d5db;
+  --muted:#9ca3af;
+
+  --blue:#3b82f6;
+  --green:#22c55e;
+  --orange:#f97316;
+  --purple:#8b5cf6;
+  --yellow:#f59e0b;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  padding:28px;
+}
+
+h1{
+  font-family:'Syne',sans-serif;
+  font-size:34px;
+  margin-bottom:10px;
+}
+
+.sub{
+  color:var(--muted);
+  margin-bottom:30px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:13px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(340px,1fr));
+  gap:22px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  overflow:hidden;
+}
+
+.head{
+  padding:18px;
+  border-bottom:1px solid var(--border);
+}
+
+.head h2{
+  font-family:'Syne',sans-serif;
+  font-size:22px;
+}
+
+.head p{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.body{
+  padding:18px;
+}
+
+.section{
+  margin-bottom:20px;
+}
+
+.section h3{
+  margin-bottom:10px;
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--muted);
+  font-family:'JetBrains Mono', monospace;
+}
+
+.item{
+  padding:10px 12px;
+  border-radius:10px;
+  margin-bottom:8px;
+  font-size:14px;
+  line-height:1.5;
+}
+
+.cmd{background:rgba(59,130,246,.12);border-left:4px solid var(--blue)}
+.ev{background:rgba(249,115,22,.12);border-left:4px solid var(--orange)}
+.rule{background:rgba(239,68,68,.12);border-left:4px solid #ef4444}
+.db{background:rgba(34,197,94,.12);border-left:4px solid var(--green)}
+.msg{background:rgba(245,158,11,.12);border-left:4px solid var(--yellow)}
+.pol{background:rgba(139,92,246,.12);border-left:4px solid var(--purple)}
+
+.flow{
+  margin-top:40px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:24px;
+}
+
+.flow h2{
+  margin-bottom:18px;
+  font-family:'Syne',sans-serif;
+}
+
+pre{
+  white-space:pre-wrap;
+  font-size:14px;
+  line-height:1.8;
+  color:#d1d5db;
+  font-family:'JetBrains Mono', monospace;
+}
+
+.footer{
+  margin-top:30px;
+  color:var(--muted);
+  font-size:13px;
+}
+</style>
+</head>
+<body>
+
+<h1>⚡ Event Storming — Conexão Solidária</h1>
+
+<div class="sub">
+Arquitetura MVP · 3 Microsserviços · MongoDB · RabbitMQ · Kubernetes · Event-Driven
+</div>
+
+<div class="grid">
+
+  <!-- USER SERVICE -->
+  <div class="card">
+    <div class="head">
+      <h2 style="color:#3b82f6">👤 User Service</h2>
+      <p>Responsável por autenticação, usuários e estatísticas do doador.</p>
+    </div>
+
+    <div class="body">
+
+      <div class="section">
+        <h3>Commands</h3>
+
+        <div class="item cmd">RegisterUser</div>
+        <div class="item cmd">LoginUser</div>
+        <div class="item cmd">UpdateUserDonationStats</div>
+      </div>
+
+      <div class="section">
+        <h3>Domain Events</h3>
+
+        <div class="item ev">UserRegistered</div>
+        <div class="item ev">UserAuthenticated</div>
+        <div class="item ev">UserDonationStatsUpdated</div>
+      </div>
+
+      <div class="section">
+        <h3>Business Rules</h3>
+
+        <div class="item rule">Email único</div>
+        <div class="item rule">CPF válido</div>
+        <div class="item rule">Senha com BCrypt</div>
+        <div class="item rule">JWT obrigatório</div>
+      </div>
+
+      <div class="section">
+        <h3>MongoDB Collections</h3>
+
+        <div class="item db">users</div>
+        <div class="item db">user_statistics</div>
+        <div class="item db">auth_logs</div>
+      </div>
+
+      <div class="section">
+        <h3>RabbitMQ Consumer</h3>
+
+        <div class="item msg">Consume: DonationReceivedEvent</div>
+        <div class="item pol">Atualiza total doado do usuário</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CAMPAIGN SERVICE -->
+  <div class="card">
+    <div class="head">
+      <h2 style="color:#22c55e">🎯 Campaign Service</h2>
+      <p>Responsável por campanhas, transparência e projeções.</p>
+    </div>
+
+    <div class="body">
+
+      <div class="section">
+        <h3>Commands</h3>
+
+        <div class="item cmd">CreateCampaign</div>
+        <div class="item cmd">EditCampaign</div>
+        <div class="item cmd">UpdateCampaignMetrics</div>
+      </div>
+
+      <div class="section">
+        <h3>Domain Events</h3>
+
+        <div class="item ev">CampaignCreated</div>
+        <div class="item ev">CampaignUpdated</div>
+        <div class="item ev">CampaignDonationUpdated</div>
+      </div>
+
+      <div class="section">
+        <h3>Business Rules</h3>
+
+        <div class="item rule">Meta financeira > 0</div>
+        <div class="item rule">Campanha ativa para receber doações</div>
+        <div class="item rule">DataFim não pode estar no passado</div>
+      </div>
+
+      <div class="section">
+        <h3>MongoDB Collections</h3>
+
+        <div class="item db">campaigns</div>
+        <div class="item db">campaign_metrics</div>
+        <div class="item db">campaign_logs</div>
+      </div>
+
+      <div class="section">
+        <h3>RabbitMQ Consumer</h3>
+
+        <div class="item msg">Consume: DonationReceivedEvent</div>
+        <div class="item pol">Atualiza arrecadação da campanha</div>
+        <div class="item pol">Atualiza ticket médio e quantidade de doações</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DONATION SERVICE -->
+  <div class="card">
+    <div class="head">
+      <h2 style="color:#f97316">💰 Donation Service</h2>
+      <p>Responsável pela entrada financeira e publicação de eventos.</p>
+    </div>
+
+    <div class="body">
+
+      <div class="section">
+        <h3>Commands</h3>
+
+        <div class="item cmd">SubmitDonationIntent</div>
+        <div class="item cmd">ValidateDonation</div>
+      </div>
+
+      <div class="section">
+        <h3>Domain Events</h3>
+
+        <div class="item ev">DonationReceivedEvent</div>
+        <div class="item ev">DonationRejected</div>
+      </div>
+
+      <div class="section">
+        <h3>Business Rules</h3>
+
+        <div class="item rule">JWT obrigatório</div>
+        <div class="item rule">Valor da doação > 0</div>
+        <div class="item rule">Não atualizar campanha diretamente</div>
+        <div class="item rule">Garantir idempotência por CorrelationId</div>
+      </div>
+
+      <div class="section">
+        <h3>MongoDB Collections</h3>
+
+        <div class="item db">donation_intents</div>
+        <div class="item db">donation_logs</div>
+        <div class="item db">outbox_events</div>
+      </div>
+
+      <div class="section">
+        <h3>RabbitMQ Publisher</h3>
+
+        <div class="item msg">Publish: DonationReceivedEvent</div>
+        <div class="item pol">Exchange: donation.exchange</div>
+        <div class="item pol">Routing Key: donation.received</div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="flow">
+  <h2>🔄 Fluxo Assíncrono Principal</h2>
+
+<pre>
+1. Doador realiza login no User Service
+2. User Service gera JWT
+3. Doador envia POST /donations no Donation Service
+4. Donation Service:
+   - valida JWT
+   - salva donation_intent
+   - publica DonationReceivedEvent
+
+5. RabbitMQ distribui evento para:
+   - User Service
+   - Campaign Service
+
+6. User Service:
+   - atualiza estatísticas do usuário
+   - registra histórico de doações
+
+7. Campaign Service:
+   - incrementa valor arrecadado
+   - atualiza total de doações
+   - atualiza métricas públicas
+
+8. Painel público consulta Campaign Service
+</pre>
+</div>
+
+<div class="flow">
+  <h2>📦 Estrutura Recomendada</h2>
+
+<pre>
+/src
+ ├── UserService
+ ├── CampaignService
+ ├── DonationService
+ ├── SharedKernel
+ │
+ ├── docker-compose.yml
+ ├── k8s/
+ └── .github/workflows/
+
+/k8s
+ ├── user-service.yaml
+ ├── campaign-service.yaml
+ ├── donation-service.yaml
+ ├── rabbitmq.yaml
+ └── mongodb.yaml
+</pre>
+</div>
+
+<div class="flow">
+  <h2>🚀 Benefícios da Arquitetura</h2>
+
+<pre>
+✅ Responsabilidades bem separadas
+✅ Totalmente orientado a eventos
+✅ Idempotência facilitada
+✅ Escalabilidade independente
+✅ Campaign Service focado em leitura e projeções
+✅ Donation Service como source of truth financeiro
+✅ Melhor rastreabilidade de auditoria
+✅ Menor acoplamento entre domínios
+✅ Excelente narrativa para banca avaliadora
+</pre>
+</div>
+
+<div class="footer">
+Conexão Solidária · Arquitetura baseada em EventStorming · MVP escalável para Hackathon
+</div>
+
+</body>
+</html>
