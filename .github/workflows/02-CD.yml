@@ -59,6 +59,7 @@ jobs:
           docker build \
           -t ghcr.io/${{ github.repository_owner }}/user-service:${{ github.sha }} \
           -t ghcr.io/${{ github.repository_owner }}/user-service:latest \
+          -f UserService.WebApi/Dockerfile \
           .
 
       - name: Push Docker Image
