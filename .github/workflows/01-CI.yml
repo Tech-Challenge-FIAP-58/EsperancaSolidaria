@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: UserService
+        working-directory: src/UserService
 
     steps:
 
@@ -33,14 +33,8 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
-      - name: Show Structure
-        run: |
-          pwd
-          ls -la
-          find . -name "*.sln"
-
       - name: Restore
-        run: dotnet restore src/UserService/UserService.sln
+        run: dotnet restore UserService.sln
 
       - name: Build
         run: |
