@@ -6,13 +6,13 @@ on:
       - main
       - develop
     paths:
-      - 'UserService/**'
+      - 'src/UserService/**'
 
   push:
     branches:
       - develop
     paths:
-      - 'UserService/**'
+      - 'src/UserService/**'
 
 jobs:
   build-and-test:
@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: UserService
+        working-directory: src/UserService
 
     steps:
 
@@ -62,6 +62,7 @@ jobs:
         run: |
           docker build \
           -t user-service:ci \
+          -f UserService.WebApi/Dockerfile \
           .
 
       - name: Upload Build Artifacts

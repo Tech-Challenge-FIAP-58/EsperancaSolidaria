@@ -31,12 +31,12 @@ WORKDIR /src
 
 COPY UserService.sln ./
 
-COPY src/UserService/UserService.WebApi.csproj src/UserService.WebApi/
-COPY src/UserService/UserService.Application.csproj src/UserService.Application/
-COPY src/UserService/UserService.Infra.csproj src/UserService.Infra/
-COPY src/UserService/UserService.Domain.csproj src/UserService.Domain/
+COPY UserService.WebApi/UserService.WebApi.csproj UserService.WebApi/
+COPY UserService.Application/UserService.Application.csproj UserService.Application/
+COPY UserService.Infra/UserService.Infra.csproj UserService.Infra/
+COPY UserService.Domain/UserService.Domain.csproj UserService.Domain/
 
-RUN dotnet restore src/UserService/UserService.WebApi.csproj
+RUN dotnet restore UserService.WebApi/UserService.WebApi.csproj
 
 # =============================================================
 # STAGE 3: Build + Publish
@@ -49,7 +49,7 @@ ARG BUILD_CONFIGURATION
 # Copia o restante do código fonte
 COPY . .
 
-RUN dotnet publish src/UserService/UserService.WebApi.csproj \
+RUN dotnet publish UserService.WebApi/UserService.WebApi.csproj \
     -c ${BUILD_CONFIGURATION} \
     --no-restore \
     -o /app/publish \
