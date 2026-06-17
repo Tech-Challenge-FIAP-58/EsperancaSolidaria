@@ -1,12 +1,14 @@
+using CampaignService.WebApi.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// =================================== Add settings =================================== //
+builder.AddApiSettings();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// =================================== Add services =================================== //
+builder.AddServices();
 
+// =================================== Add app config =================================== //
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
