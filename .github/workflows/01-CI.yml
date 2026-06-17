@@ -34,7 +34,7 @@ jobs:
           dotnet-version: 8.0.x
 
       - name: Restore
-        run: dotnet restore UserService.sln
+        run: dotnet restore src/UserService/UserService.sln
 
       - name: Build
         run: |
