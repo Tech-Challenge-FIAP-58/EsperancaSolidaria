@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'UserService/**'
+      - 'src/UserService/**'
 
 jobs:
   publish:
