@@ -1,0 +1,68 @@
+name: UserService CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'UserService/**'
+
+jobs:
+  publish:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    defaults:
+      run:
+        working-directory: UserService
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore UserService.sln
+
+      - name: Build
+        run: |
+          dotnet build \
+          UserService.sln \
+          --configuration Release \
+          --no-restore
+
+      - name: Run Tests
+        run: |
+          dotnet test \
+          UserService.sln \
+          --configuration Release \
+          --no-build
+
+      - name: Login GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker Image
+        run: |
+          docker build \
+          -t ghcr.io/${{ github.repository_owner }}/user-service:${{ github.sha }} \
+          -t ghcr.io/${{ github.repository_owner }}/user-service:latest \
+          .
+
+      - name: Push Docker Image
+        run: |
+          docker push ghcr.io/${{ github.repository_owner }}/user-service:${{ github.sha }}
+
+          docker push ghcr.io/${{ github.repository_owner }}/user-service:latest
