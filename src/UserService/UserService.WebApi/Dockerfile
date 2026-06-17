@@ -31,10 +31,10 @@ WORKDIR /src
 
 COPY UserService.sln ./
 
-COPY src/UserService/UserService.WebApi/UserService.WebApi.csproj src/UserService.WebApi/
-COPY src/UserService/UserService.Application/UserService.Application.csproj src/UserService.Application/
-COPY src/UserService/UserService.Infra/UserService.Infra.csproj src/UserService.Infra/
-COPY src/UserService/UserService.Domain/UserService.Domain.csproj src/UserService.Domain/
+COPY src/UserService/UserService.WebApi/UserService.WebApi.csproj UserService.WebApi/
+COPY src/UserService/UserService.Application/UserService.Application.csproj UserService.Application/
+COPY src/UserService/UserService.Infra/UserService.Infra.csproj UserService.Infra/
+COPY src/UserService/UserService.Domain/UserService.Domain.csproj UserService.Domain/
 
 RUN dotnet restore src/UserService/UserService.WebApi/UserService.WebApi.csproj
 
