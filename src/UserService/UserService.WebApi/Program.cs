@@ -1,29 +1,15 @@
-using UserService.Infra.Configurations;
-using UserService.Infra.DependencyInjection;
 using UserService.Infra.Mongo.Bootstrap;
-using UserService.Infra.Mongo.Collections;
+using UserService.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// =================================== Add settings =================================== //
+builder.AddApiSettings();
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+// =================================== Add services =================================== //
+builder.AddServices();
 
-builder.Services
-    .AddOptions<MongoConfig>()
-    .BindConfiguration("Mongo")
-    .ValidateDataAnnotations()
-    .ValidateOnStart();
-builder.Services.AddMongo();
-
-builder.Services.AddSingleton<MongoCollections>();
-builder.Services.AddSingleton<MongoCollectionInitializer>();
-builder.Services.AddSingleton<UserIndexes>();
-builder.Services.AddSingleton<MongoBootstrap>();
-
+// =================================== Add app config =================================== //
 var app = builder.Build();
 
 using var scope =
@@ -34,7 +20,6 @@ var bootstrap =
         .GetRequiredService<MongoBootstrap>();
 
 await bootstrap.InitializeAsync();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
