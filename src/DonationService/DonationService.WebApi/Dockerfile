@@ -1,7 +1,7 @@
 # =============================================================
 # ARGs globais — disponíveis em todos os stages
 # =============================================================
-ARG DOTNET_VERSION=8.0
+ARG DOTNET_VERSION=10.0
 ARG BUILD_CONFIGURATION=Development
 ARG APP_VERSION=1.0.0
 
@@ -29,11 +29,14 @@ FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS restore
 
 WORKDIR /src
 
-COPY DonationService.sln ./
+COPY DontaionService.sln ./
 
-COPY src/DonationService/DonationService.WebApi.csproj src/DonationService.WebApi/
+COPY DontaionService.WebApi/DontaionService.WebApi.csproj DontaionService.WebApi/
+COPY DontaionService.Application/DontaionService.Application.csproj DontaionService.Application/
+COPY DontaionService.Infra/DontaionService.Infra.csproj DontaionService.Infra/
+COPY DontaionService.Domain/DontaionService.Domain.csproj DontaionService.Domain/
 
-RUN dotnet restore src/DonationService/DonationService.WebApi.csproj
+RUN dotnet restore DontaionService.WebApi/DontaionService.WebApi.csproj
 
 # =============================================================
 # STAGE 3: Build + Publish
@@ -46,7 +49,7 @@ ARG BUILD_CONFIGURATION
 # Copia o restante do código fonte
 COPY . .
 
-RUN dotnet publish src/DonationService/DonationService.WebApi.csproj \
+RUN dotnet publish DontaionService.WebApi/DontaionService.WebApi.csproj \
     -c ${BUILD_CONFIGURATION} \
     --no-restore \
     -o /app/publish \
@@ -60,7 +63,7 @@ FROM base AS final
 # Labels OCI — rastreabilidade no DockerHub, Kubernetes e pipelines CI/CD
 # ARGs precisam ser redeclarados após cada FROM para ficarem visíveis
 ARG APP_VERSION
-LABEL org.opencontainers.image.title="DonationService.WebApi" \
+LABEL org.opencontainers.image.title="DontaionService.WebApi" \
       org.opencontainers.image.description="Microsserviço de usuários - Esperança Solidária" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.vendor="Thiago Olszewski" \
@@ -86,4 +89,4 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD wget -qO- http://localhost:8080/health || exit 1
 
-ENTRYPOINT ["dotnet", "DonationService.WebApi.dll"]
+ENTRYPOINT ["dotnet", "DontaionService.WebApi.dll"]
