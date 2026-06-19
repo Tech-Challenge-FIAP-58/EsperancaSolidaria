@@ -1,7 +1,7 @@
 # =============================================================
 # ARGs globais — disponíveis em todos os stages
 # =============================================================
-ARG DOTNET_VERSION=8.0
+ARG DOTNET_VERSION=10.0
 ARG BUILD_CONFIGURATION=Development
 ARG APP_VERSION=1.0.0
 
