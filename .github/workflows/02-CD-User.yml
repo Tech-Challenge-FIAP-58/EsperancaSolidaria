@@ -76,7 +76,7 @@ jobs:
       - name: Scan da imagem (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ steps.login-ecr.outputs.registry }}/fiap-fcg/users-api:${{ github.sha }}
+          image-ref: ${{ steps.login-ecr.outputs.registry }}/user-service:${{ github.sha }}
           format: table
           exit-code: '1'
           severity: CRITICAL,HIGH
