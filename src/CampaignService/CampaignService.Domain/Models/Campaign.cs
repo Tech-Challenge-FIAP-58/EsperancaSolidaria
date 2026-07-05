@@ -2,14 +2,14 @@
 {
     public class Campaign
     {
-        public Guid CampaignId { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
-        public decimal FinancialTarget { get; set; }
-        public bool IsActive { get; set; }
-        public decimal CollectedAmount { get; set; }
+        public Guid CampaignId { get; private set; }
+        public string Title { get; private set; }
+        public string Description { get; private set; }
+        public DateTime StartDate { get; private set; }
+        public DateTime EndDate { get; private set; }
+        public decimal FinancialTarget { get; private set; }
+        public bool IsActive { get; private set; }
+        public decimal CollectedAmount { get; private set; }
 
         public Campaign(string title, string description, DateTime startDate, DateTime endDate, decimal financialTarget)
         {
@@ -35,6 +35,11 @@
         public void CancelCampaign()
         {
             IsActive = false;
+        }
+
+        public void AddCollectedAmount(decimal amount)
+        {
+            CollectedAmount += amount;
         }
     }
 }
