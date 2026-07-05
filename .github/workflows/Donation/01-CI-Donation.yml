@@ -54,20 +54,20 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: user-service-test-results
+          name: donation-service-test-results
           path: |
             DonationService/tests/**/TestResults
 
       - name: Docker Build Validation
         run: |
           docker build \
-          -t user-service:ci \
+          -t donation-service:ci \
           -f DonationService.WebApi/Dockerfile \
           .
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: user-service-build
+          name: donation-service-build
           path: |
             DonationService/src/**/bin/Release

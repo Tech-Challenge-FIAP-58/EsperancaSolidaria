@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: tech-challenge-fiap-58/user-service
+  IMAGE_NAME: tech-challenge-fiap-58/campaign-service
 
 jobs:
   publish:

@@ -64,7 +64,7 @@ FROM base AS final
 # ARGs precisam ser redeclarados após cada FROM para ficarem visíveis
 ARG APP_VERSION
 LABEL org.opencontainers.image.title="CampaignService.WebApi" \
-      org.opencontainers.image.description="Microsserviço de usuários - Esperança Solidária" \
+      org.opencontainers.image.description="Microsserviço de campanha - Esperança Solidária" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.vendor="Thiago Olszewski" \
       org.opencontainers.image.source="https://github.com/Tech-Challenge-FIAP-58/EsperancaSolidaria"
