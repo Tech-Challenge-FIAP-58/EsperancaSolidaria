@@ -18,7 +18,7 @@ namespace CampaignService.Infra.Mongo.Indexes
                new CreateIndexModel<Campaign>(
                    Builders<Campaign>
                        .IndexKeys
-                       .Ascending(x => x.CampaignId),
+                       .Ascending(x => x.Id),
 
                    new CreateIndexOptions
                    {

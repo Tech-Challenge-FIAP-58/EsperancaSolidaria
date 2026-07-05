@@ -15,7 +15,7 @@ namespace CampaignService.Application.Services
             var campaignCreated = new CampaignCreated();
             var campaign = campaignCreated.CreateCampaign(title, description, startDate, endDate, financialTarget);
 
-            return Success<bool>(message: $"Campanha #{campaign.CampaignId} criada com sucesso");
+            return Success<bool>(message: $"Campanha #{campaign.Id} criada com sucesso");
         }
 
         public async Task<ObjectReply<bool>> UpdateCampaign(Guid id, string title, string description, DateTime startDate, DateTime endDate, decimal financialTarget)
