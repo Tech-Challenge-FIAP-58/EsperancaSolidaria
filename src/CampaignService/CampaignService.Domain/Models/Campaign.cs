@@ -1,8 +1,7 @@
 ﻿namespace CampaignService.Domain.Models
 {
-    public class Campaign
+    public class Campaign : ModelBase
     {
-        public Guid CampaignId { get; private set; }
         public string Title { get; private set; }
         public string Description { get; private set; }
         public DateTime StartDate { get; private set; }
@@ -13,7 +12,7 @@
 
         public Campaign(string title, string description, DateTime startDate, DateTime endDate, decimal financialTarget)
         {
-            CampaignId = Guid.NewGuid();
+            Id = Guid.NewGuid();
             Title = title;
             Description = description;
             StartDate = startDate;
