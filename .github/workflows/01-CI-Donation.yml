@@ -1,4 +1,4 @@
-name: CampaignService CI
+name: DonationService CI
 
 on:
   pull_request:
@@ -6,13 +6,13 @@ on:
       - main
       - develop
     paths:
-      - 'src/CampaignService/**'
+      - 'src/DonationService/**'
 
   push:
     branches:
       - develop
     paths:
-      - 'src/CampaignService/**'
+      - 'src/DonationService/**'
 
 jobs:
   build-and-test:
@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src/CampaignService
+        working-directory: src/DonationService
 
     steps:
 
@@ -34,19 +34,19 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore CampaignService.sln
+        run: dotnet restore DonationService.sln
 
       - name: Build
         run: |
           dotnet build \
-          CampaignService.sln \
+          DonationService.sln \
           --configuration Release \
           --no-restore
 
       - name: Run Tests
         run: |
           dotnet test \
-          CampaignService.sln \
+          DonationService.sln \
           --configuration Release \
           --no-build \
           --collect:"XPlat Code Coverage"
@@ -54,20 +54,20 @@ jobs:
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
         with:
-          name: user-service-test-results
+          name: donation-service-test-results
           path: |
-            CampaignService/tests/**/TestResults
+            DonationService/tests/**/TestResults
 
       - name: Docker Build Validation
         run: |
           docker build \
-          -t user-service:ci \
-          -f CampaignService.WebApi/Dockerfile \
+          -t donation-service:ci \
+          -f DonationService.WebApi/Dockerfile \
           .
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: user-service-build
+          name: donation-service-build
           path: |
-            CampaignService/src/**/bin/Release
+            DonationService/src/**/bin/Release

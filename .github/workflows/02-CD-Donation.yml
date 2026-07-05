@@ -1,15 +1,15 @@
-name: CampaignService CD
+name: DonationService CD
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'src/CampaignService/**'
+      - 'src/DonationService/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: tech-challenge-fiap-58/user-service
+  IMAGE_NAME: tech-challenge-fiap-58/donation-service
 
 jobs:
   publish:
@@ -22,7 +22,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src/CampaignService
+        working-directory: src/DonationService
 
     steps:
       - name: Checkout
@@ -34,19 +34,19 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore CampaignService.sln
+        run: dotnet restore DonationService.sln
 
       - name: Build
         run: |
           dotnet build \
-            CampaignService.sln \
+            DonationService.sln \
             --configuration Release \
             --no-restore
 
       - name: Run Tests
         run: |
           dotnet test \
-            CampaignService.sln \
+            DonationService.sln \
             --configuration Release \
             --no-build
 
@@ -65,7 +65,7 @@ jobs:
           docker build \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            -f CampaignService.WebApi/Dockerfile \
+            -f DonationService.WebApi/Dockerfile \
             .
 
       - name: Push Docker Image

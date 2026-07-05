@@ -1,4 +1,4 @@
-name: DonationService CI
+name: UserService CI
 
 on:
   pull_request:
@@ -6,13 +6,13 @@ on:
       - main
       - develop
     paths:
-      - 'src/DonationService/**'
+      - 'src/UserService/**'
 
   push:
     branches:
       - develop
     paths:
-      - 'src/DonationService/**'
+      - 'src/UserService/**'
 
 jobs:
   build-and-test:
@@ -21,7 +21,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src/DonationService
+        working-directory: src/UserService
 
     steps:
 
@@ -34,19 +34,19 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore DonationService.sln
+        run: dotnet restore UserService.sln
 
       - name: Build
         run: |
           dotnet build \
-          DonationService.sln \
+          UserService.sln \
           --configuration Release \
           --no-restore
 
       - name: Run Tests
         run: |
           dotnet test \
-          DonationService.sln \
+          UserService.sln \
           --configuration Release \
           --no-build \
           --collect:"XPlat Code Coverage"
@@ -56,13 +56,13 @@ jobs:
         with:
           name: user-service-test-results
           path: |
-            DonationService/tests/**/TestResults
+            UserService/tests/**/TestResults
 
       - name: Docker Build Validation
         run: |
           docker build \
           -t user-service:ci \
-          -f DonationService.WebApi/Dockerfile \
+          -f UserService.WebApi/Dockerfile \
           .
 
       - name: Upload Build Artifacts
@@ -70,4 +70,4 @@ jobs:
         with:
           name: user-service-build
           path: |
-            DonationService/src/**/bin/Release
+            UserService/src/**/bin/Release
