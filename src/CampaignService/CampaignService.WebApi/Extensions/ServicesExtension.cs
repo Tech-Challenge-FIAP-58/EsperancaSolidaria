@@ -1,4 +1,7 @@
-﻿namespace CampaignService.WebApi.Extensions
+﻿using CampaignService.Application.Services;
+using CampaignService.Domain.Interfaces;
+
+namespace CampaignService.WebApi.Extensions
 {
 	public static class ServicesExtension
 	{
@@ -27,6 +30,8 @@
 
 		private static WebApplicationBuilder AddUseCases(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<ICampaignManagementService, CampaignManagementService>();
+
 			return builder;
 		}
 	}

@@ -3,7 +3,7 @@ using CampaignService.Domain.Interfaces;
 
 namespace CampaignService.Application.Services
 {
-    public class CampaignService : BaseService, ICampaignService
+    public class CampaignManagementService : BaseService, ICampaignManagementService
     {
         public  async Task<ObjectReply<bool>> CancelCampaign(Guid id)
         {

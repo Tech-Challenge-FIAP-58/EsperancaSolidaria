@@ -1,4 +1,8 @@
 ﻿using CampaignService.Application.Consumers;
+using CampaignService.Infra.Configurations;
+using CampaignService.Infra.Mongo.Bootstrap;
+using CampaignService.Infra.Mongo.Collections;
+using CampaignService.Infra.Mongo.Indexes;
 using CampaignService.WebApi.Settings;
 using MassTransit;
 using Microsoft.Extensions.Options;
@@ -16,11 +20,29 @@ namespace CampaignService.WebApi.Extensions
 			RetrySettings.DelayBetweenRetriesInSeconds = builder.Configuration.GetValue<int>("MassTransit:RetrySettings:DelayBetweenRetriesInSeconds");
 
 			builder.AddMassTransitSettings();
+			builder.AddDatabaseSettings();
 
-			return builder;
+            return builder;
 		}
 
-		private static WebApplicationBuilder AddMassTransitSettings(this WebApplicationBuilder builder)
+        private static WebApplicationBuilder AddDatabaseSettings(this WebApplicationBuilder builder)
+        {
+            builder.Services
+                .AddOptions<MongoConfig>()
+                .BindConfiguration("Mongo")
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+            builder.AddMongo();
+
+            builder.Services.AddSingleton<MongoCollections>();
+            builder.Services.AddSingleton<MongoCollectionInitializer>();
+            builder.Services.AddSingleton<CampaignIndexes>();
+            builder.Services.AddSingleton<MongoBootstrap>();
+
+            return builder;
+        }
+
+        private static WebApplicationBuilder AddMassTransitSettings(this WebApplicationBuilder builder)
 		{
 			builder.Services.AddMassTransit(x =>
 			{
