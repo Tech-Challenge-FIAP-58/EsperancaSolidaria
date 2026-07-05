@@ -29,7 +29,7 @@ FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS restore
 
 WORKDIR /src
 
-COPY DonationService.sln ./
+COPY DontaionService.sln ./
 
 COPY DonationService.WebApi/DonationService.WebApi.csproj DonationService.WebApi/
 COPY DonationService.Application/DonationService.Application.csproj DonationService.Application/
@@ -89,4 +89,4 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD wget -qO- http://localhost:8080/health || exit 1
 
-ENTRYPOINT ["dotnet", "DonationService.WebApi.dll"]
+ENTRYPOINT ["dotnet", "DontaionService.WebApi.dll"]
