@@ -1,14 +1,40 @@
 ﻿namespace CampaignService.Domain.Models
 {
-    public class Campaign(string title, string description, DateTime startDate, DateTime endDate, decimal financialTarget)
+    public class Campaign
     {
-        public Guid CampaignId { get; set; } = Guid.NewGuid();
-        public string Title { get; set; } = title;
-        public string Description { get; set; } = description;
-        public DateTime StartDate { get; set; } = startDate;
-        public DateTime EndDate { get; set; } = endDate;
-        public decimal FinancialTarget { get; set; } = financialTarget;
-        public bool IsActive { get; set; } = true;
-        public decimal CollectedAmount { get; set; } = 0M;
+        public Guid CampaignId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+        public decimal FinancialTarget { get; set; }
+        public bool IsActive { get; set; }
+        public decimal CollectedAmount { get; set; }
+
+        public Campaign(string title, string description, DateTime startDate, DateTime endDate, decimal financialTarget)
+        {
+            CampaignId = Guid.NewGuid();
+            Title = title;
+            Description = description;
+            StartDate = startDate;
+            EndDate = endDate;
+            FinancialTarget = financialTarget;
+            IsActive = true;
+            CollectedAmount = 0M;
+        }
+
+        public void UpdateCampaign(string title, string description, DateTime startDate, DateTime endDate, decimal financialTarget)
+        {
+            Title = title;
+            Description = description;
+            StartDate = startDate;
+            EndDate = endDate;
+            FinancialTarget = financialTarget;
+        }
+
+        public void CancelCampaign()
+        {
+            IsActive = false;
+        }
     }
 }
