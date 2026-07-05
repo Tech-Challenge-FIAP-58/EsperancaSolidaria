@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: user-deployment
+  name: donation-deployment
   namespace: services
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: donation-service
   template:
     metadata:
       labels:
-        app: user-api
+        app: donation-api
     spec:
 
       initContainers:
@@ -29,15 +29,15 @@ spec:
               echo "RabbitMQ disponível!"
 
       containers:
-        - name: user-api
-          image: ghcr.io/tech-challenge-fiap-58/user-service:main
+        - name: donation-api
+          image: ghcr.io/tech-challenge-fiap-58/donation-service:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
 
           envFrom:
             - configMapRef:
-                name: user-api-config
+                name: donation-api-config
             - configMapRef:
                 name: services-config
 
@@ -83,24 +83,6 @@ spec:
                 secretKeyRef:
                   name: services-secrets
                   key: rabbitMQDefaultHost
-            
-            - name: BootstrapAdmin__Cpf
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secrets
-                  key: bootstrapAdminCpf
-                  
-            - name: BootstrapAdmin__Email
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secrets
-                  key: bootstrapAdminEmail
-
-            - name: BootstrapAdmin__Password
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secrets
-                  key: bootstrapAdminPassword
 
           readinessProbe:
             httpGet:

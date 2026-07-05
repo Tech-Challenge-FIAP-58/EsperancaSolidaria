@@ -1,7 +1,7 @@
 # =============================================================
 # ARGs globais — disponíveis em todos os stages
 # =============================================================
-ARG DOTNET_VERSION=8.0
+ARG DOTNET_VERSION=10.0
 ARG BUILD_CONFIGURATION=Development
 ARG APP_VERSION=1.0.0
 
@@ -31,9 +31,12 @@ WORKDIR /src
 
 COPY CampaignService.sln ./
 
-COPY src/CampaignService/CampaignService.WebApi.csproj src/CampaignService.WebApi/
+COPY CampaignService.WebApi/CampaignService.WebApi.csproj CampaignService.WebApi/
+COPY CampaignService.Application/CampaignService.Application.csproj CampaignService.Application/
+COPY CampaignService.Infra/CampaignService.Infra.csproj CampaignService.Infra/
+COPY CampaignService.Domain/CampaignService.Domain.csproj CampaignService.Domain/
 
-RUN dotnet restore src/CampaignService/CampaignService.WebApi.csproj
+RUN dotnet restore CampaignService.WebApi/CampaignService.WebApi.csproj
 
 # =============================================================
 # STAGE 3: Build + Publish
@@ -46,7 +49,7 @@ ARG BUILD_CONFIGURATION
 # Copia o restante do código fonte
 COPY . .
 
-RUN dotnet publish src/CampaignService/CampaignService.WebApi.csproj \
+RUN dotnet publish CampaignService.WebApi/CampaignService.WebApi.csproj \
     -c ${BUILD_CONFIGURATION} \
     --no-restore \
     -o /app/publish \
@@ -61,7 +64,7 @@ FROM base AS final
 # ARGs precisam ser redeclarados após cada FROM para ficarem visíveis
 ARG APP_VERSION
 LABEL org.opencontainers.image.title="CampaignService.WebApi" \
-      org.opencontainers.image.description="Microsserviço de usuários - Esperança Solidária" \
+      org.opencontainers.image.description="Microsserviço de campanha - Esperança Solidária" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.vendor="Thiago Olszewski" \
       org.opencontainers.image.source="https://github.com/Tech-Challenge-FIAP-58/EsperancaSolidaria"
