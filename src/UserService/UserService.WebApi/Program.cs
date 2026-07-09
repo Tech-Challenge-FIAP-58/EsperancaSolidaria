@@ -1,4 +1,5 @@
 using UserService.Infra.Mongo.Bootstrap;
+using UserService.Infra.Seed;
 using UserService.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,9 @@ var bootstrap =
 
 await bootstrap.InitializeAsync();
 
+// Cria o GestorONG padrão (bootstrap) caso ainda não exista.
+await GestorSeeder.SeedAsync(app.Services);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -29,6 +33,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
