@@ -17,7 +17,7 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Create([FromBody] UserCreateDto dto)
         {
             logger.LogInformation("POST - Criar usuário com role {Role}", dto.Role);
-            return await TryMethodAsync(() => service.Create(dto), logger);
+            return await ExecuteAsync(() => service.Create(dto));
         }
 
         [HttpGet("GetAll")]
@@ -26,7 +26,7 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Get()
         {
             logger.LogInformation("GET - Listar usuários");
-            return await TryMethodAsync(() => service.GetAll(), logger);
+            return await ExecuteAsync(() => service.GetAll());
         }
 
         [HttpGet("GetById/{id:guid}")]
@@ -36,7 +36,7 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Get(Guid id)
         {
             logger.LogInformation("GET BY ID - Listar usuário de ID: {Id}", id);
-            return await TryMethodAsync(() => service.GetById(id), logger);
+            return await ExecuteAsync(() => service.GetById(id));
         }
 
         [HttpPut("Update/{id:guid}")]
@@ -48,7 +48,7 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Update(Guid id, [FromBody] UserUpdateDto dto)
         {
             logger.LogInformation("PUT - Atualizar usuário de ID: {Id}", id);
-            return await TryMethodAsync(() => service.Update(id, dto), logger);
+            return await ExecuteAsync(() => service.Update(id, dto));
         }
 
         [HttpDelete("Delete/{id:guid}")]
@@ -58,7 +58,7 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Remove(Guid id)
         {
             logger.LogInformation("DELETE - Remover usuário de ID: {Id}", id);
-            return await TryMethodAsync(() => service.Remove(id), logger);
+            return await ExecuteAsync(() => service.Remove(id));
         }
     }
 }

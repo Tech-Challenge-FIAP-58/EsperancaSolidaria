@@ -11,6 +11,8 @@ using UserService.Domain.Interfaces.Utils;
 using UserService.Infra.Configurations;
 using UserService.Infra.Repository;
 using UserService.Infra.Utils;
+using UserService.WebApi.HealthChecks;
+using UserService.WebApi.Middleware;
 
 namespace UserService.WebApi.Extensions
 {
@@ -20,6 +22,13 @@ namespace UserService.WebApi.Extensions
 		{
 			// =================================== Add controllers =================================== //
 			builder.Services.AddControllers();
+
+			// =================================== Add exception handling =================================== //
+			builder.Services.AddProblemDetails();
+			builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+			// =================================== Add health checks =================================== //
+			builder.AddAppHealthChecks();
 
 			// =================================== Add AutoMapper =================================== //
 			builder.Services.AddAutoMapper(typeof(UserProfile).Assembly);
@@ -35,6 +44,20 @@ namespace UserService.WebApi.Extensions
 
 			// =================================== Add swagger =================================== //
 			builder.AddSwagger();
+
+			return builder;
+		}
+
+		/// <summary>
+		/// Registra as dependências externas que a aplicação usa hoje.
+		/// O Mongo é a única: o bus do MassTransit sobe mas nenhum endpoint depende dele
+		/// enquanto o Worker de doações não existir.
+		/// </summary>
+		private static WebApplicationBuilder AddAppHealthChecks(this WebApplicationBuilder builder)
+		{
+			builder.Services
+				.AddHealthChecks()
+				.AddCheck<MongoHealthCheck>("mongo", tags: [HealthCheckTags.Dependency]);
 
 			return builder;
 		}

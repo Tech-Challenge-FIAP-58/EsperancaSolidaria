@@ -15,10 +15,9 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             logger.LogInformation("POST - Login para o email: {Email}", loginDto.Email);
-            return await TryMethodAsync(() => service.Login(loginDto), logger);
+            return await ExecuteAsync(() => service.Login(loginDto));
         }
 
-        // Auto-cadastro público: cria um Doador.
         [HttpPost("Register")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status201Created)]
@@ -28,7 +27,7 @@ namespace UserService.WebApi.Controllers
         public async Task<IActionResult> Register([FromBody] UserRegisterDto dto)
         {
             logger.LogInformation("POST - Registro de doador: {Email}", dto.Email);
-            return await TryMethodAsync(() => service.Register(dto), logger);
+            return await ExecuteAsync(() => service.Register(dto));
         }
     }
 }

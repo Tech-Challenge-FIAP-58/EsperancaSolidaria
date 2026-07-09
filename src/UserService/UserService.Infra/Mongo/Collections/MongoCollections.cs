@@ -1,9 +1,8 @@
-﻿using MongoDB.Driver;
-using UserService.Domain.Models;
+﻿using UserService.Domain.Models;
+using MongoDB.Driver;
 
 namespace UserService.Infra.Mongo.Collections
 {
-
     public sealed class MongoCollections
     {
         public IMongoCollection<User> Users { get; }
