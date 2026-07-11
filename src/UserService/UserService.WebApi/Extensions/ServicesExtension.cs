@@ -63,6 +63,7 @@ namespace UserService.WebApi.Extensions
 		private static WebApplicationBuilder AddRepositories(this WebApplicationBuilder builder)
 		{
 			builder.Services.AddScoped<IUserRepository, UserRepository>();
+			builder.Services.AddScoped<IUserStatisticsRepository, UserStatisticsRepository>();
 			builder.Services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
 
 			return builder;
@@ -72,6 +73,7 @@ namespace UserService.WebApi.Extensions
 		{
 			builder.Services.AddScoped<IUserApplicationService, UserApplicationService>();
 			builder.Services.AddScoped<IAuthService, AuthService>();
+			builder.Services.AddScoped<IDonationStatsService, DonationStatsService>();
 			builder.Services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
 
 			return builder;

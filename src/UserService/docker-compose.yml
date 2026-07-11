@@ -1,0 +1,34 @@
+# Infraestrutura local do UserService.
+# Por ora sobe apenas o RabbitMQ (broker consumido pelo DonationReceivedEventConsumer).
+# A API roda no host (dotnet run) e conecta em localhost:5672 — ver seção "RabbitMQ"
+# do appsettings.json, que já aponta para este broker.
+#
+#   Subir:   docker compose up -d
+#   Painel:  http://localhost:15672  (guest / guest)
+#   Parar:   docker compose down          (mantém os dados no volume)
+#   Zerar:   docker compose down -v       (remove o volume)
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: esperanca-rabbitmq
+    hostname: esperanca-rabbitmq
+    ports:
+      - "5672:5672"     # AMQP — usado pela aplicação
+      - "15672:15672"   # painel de gestão (UI web)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:

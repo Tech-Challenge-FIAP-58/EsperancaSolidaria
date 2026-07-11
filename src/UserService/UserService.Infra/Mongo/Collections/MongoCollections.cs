@@ -7,12 +7,18 @@ namespace UserService.Infra.Mongo.Collections
     {
         public IMongoCollection<User> Users { get; }
 
+        public IMongoCollection<UserDonationStat> UserStatistics { get; }
+
         public MongoCollections(
             IMongoDatabase database)
         {
             Users =
                 database.GetCollection<User>(
                     CollectionsNames.Users);
+
+            UserStatistics =
+                database.GetCollection<UserDonationStat>(
+                    CollectionsNames.UserStatistics);
         }
     }
 }

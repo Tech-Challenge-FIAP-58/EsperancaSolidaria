@@ -1,0 +1,62 @@
+# Infraestrutura local COMPARTILHADA do monorepo EsperançaSolidária.
+#
+# RabbitMQ é o broker comum entre DonationService (produtor) e UserService (consumidor).
+# MongoDB é OPCIONAL (profile "local-mongo"): por padrão os serviços usam o Atlas
+# configurado no appsettings — só suba o Mongo local se quiser rodar 100% offline.
+#
+#   Só o broker:       docker compose up -d
+#   Broker + Mongo:    docker compose --profile local-mongo up -d
+#   Painel Rabbit:     http://localhost:15672  (guest / guest)
+#   Parar:             docker compose down          (mantém os volumes)
+#   Zerar dados:       docker compose down -v
+#
+# ATENÇÃO: não rode este compose junto com src/UserService/docker-compose.yml —
+# ambos publicam a porta 5672 e usam o mesmo nome de container. Este é o compose
+# "monorepo" (infra para todos os serviços); aquele é para rodar o UserService isolado.
+
+name: esperanca-solidaria
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: esperanca-rabbitmq
+    hostname: esperanca-rabbitmq
+    ports:
+      - "5672:5672"     # AMQP — usado pelas aplicações
+      - "15672:15672"   # painel de gestão (UI web)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  # Opcional: só sobe com `--profile local-mongo`.
+  # Para usá-lo, aponte "Mongo:ConnectionString" para mongodb://localhost:27017
+  # (e ajuste "Mongo:Database") no appsettings do serviço.
+  mongo:
+    image: mongo:7
+    container_name: esperanca-mongo
+    profiles: ["local-mongo"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:
+  mongo_data:
