@@ -11,7 +11,6 @@ namespace UserService.Application.Services
 	{
 		public async Task RegisterDonation(DonationReceivedEvent evt)
 		{
-			// DonationId vira o _id: garante idempotência contra reentrega do bus.
 			var stat = new UserDonationStat
 			{
 				Guid = evt.DonationId,
