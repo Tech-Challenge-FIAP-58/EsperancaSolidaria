@@ -1,14 +1,7 @@
 namespace UserService.Domain.Exceptions
 {
-    /// <summary>
-    /// Tentativa de gravar uma entidade que viola uma restrição de unicidade.
-    /// Lançada pela camada de persistência, traduzida em HTTP 409 na borda.
-    /// </summary>
     public sealed class DuplicateEntityException : Exception
     {
-        /// <summary>
-        /// Propriedade duplicada (ex.: "Email"). Nula quando a origem não é identificável.
-        /// </summary>
         public string? PropertyName { get; }
 
         public DuplicateEntityException(string? propertyName, Exception? innerException = null)

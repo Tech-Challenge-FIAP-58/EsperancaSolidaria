@@ -28,7 +28,6 @@ namespace UserService.Application.Auth
             return Ok(token);
         }
 
-        // Auto-cadastro público: a role é fixada como Doador no servidor (o cliente não a escolhe).
         public async Task<IApiResponse<Guid>> Register(UserRegisterDto dto)
         {
             if (await _repository.ExistsByEmail(dto.Email))

@@ -1,4 +1,5 @@
 ﻿namespace UserService.Infra.Mongo.Bootstrap;
+
 public sealed class MongoBootstrap(
     MongoCollectionInitializer collections,
     UserIndexes indexes)

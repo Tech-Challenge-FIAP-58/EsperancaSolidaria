@@ -7,10 +7,6 @@ namespace UserService.WebApi.HealthChecks
     {
         private static readonly JsonSerializerOptions Options = new() { WriteIndented = true };
 
-        /// <summary>
-        /// Corpo JSON com o resultado de cada check. A exceção nunca é serializada:
-        /// o endpoint é público e a mensagem carrega detalhe de infraestrutura.
-        /// </summary>
         public static Task WriteAsync(HttpContext context, HealthReport report)
         {
             context.Response.ContentType = "application/json; charset=utf-8";

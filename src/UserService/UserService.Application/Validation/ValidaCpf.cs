@@ -5,9 +5,6 @@ namespace UserService.Application.Validation
 {
     public static class ValidaCpf
     {
-        /// <summary>
-        /// Método usado diretamente pelo atributo [CustomValidation].
-        /// </summary>
         public static ValidationResult? ValidarCpf(string? cpf, ValidationContext context)
         {
             return IsCpf(cpf)
@@ -15,26 +12,19 @@ namespace UserService.Application.Validation
                 : new ValidationResult("CPF inválido.");
         }
 
-        /// <summary>
-        /// Valida o CPF segundo as regras oficiais (com cálculo dos dígitos verificadores).
-        /// </summary>
         public static bool IsCpf(string? cpf)
         {
             if (string.IsNullOrWhiteSpace(cpf))
                 return false;
 
-            // Remove caracteres não numéricos
             cpf = Regex.Replace(cpf, @"[^\d]", "");
 
-            // Verifica tamanho
             if (cpf.Length != 11)
                 return false;
 
-            // Elimina CPFs com todos os dígitos iguais (ex: 11111111111)
             if (new string(cpf[0], cpf.Length) == cpf)
                 return false;
 
-            // Calcula os dois dígitos verificadores
             int[] multiplicador1 = [10, 9, 8, 7, 6, 5, 4, 3, 2];
             int[] multiplicador2 = [11, 10, 9, 8, 7, 6, 5, 4, 3, 2];
 

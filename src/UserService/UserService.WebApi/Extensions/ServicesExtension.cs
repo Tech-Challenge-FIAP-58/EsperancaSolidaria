@@ -1,18 +1,18 @@
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using UserService.Domain.Interfaces.Repository;
+using UserService.Domain.Interfaces.Utils;
+using UserService.Infra.Configurations;
+using UserService.WebApi.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using UserService.Application.Auth;
 using UserService.Application.Mapping;
 using UserService.Application.Services;
-using UserService.Domain.Interfaces.Repository;
-using UserService.Domain.Interfaces.Utils;
-using UserService.Infra.Configurations;
 using UserService.Infra.Repository;
 using UserService.Infra.Utils;
-using UserService.WebApi.HealthChecks;
 using UserService.WebApi.Middleware;
+using System.Security.Claims;
+using System.Text;
 
 namespace UserService.WebApi.Extensions
 {
@@ -50,8 +50,6 @@ namespace UserService.WebApi.Extensions
 
 		/// <summary>
 		/// Registra as dependências externas que a aplicação usa hoje.
-		/// O Mongo é a única: o bus do MassTransit sobe mas nenhum endpoint depende dele
-		/// enquanto o Worker de doações não existir.
 		/// </summary>
 		private static WebApplicationBuilder AddAppHealthChecks(this WebApplicationBuilder builder)
 		{
@@ -81,7 +79,6 @@ namespace UserService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddJwtAuth(this WebApplicationBuilder builder)
 		{
-			// Settings de JWT tipados e validados na inicialização.
 			builder.Services
 				.AddOptions<JwtSettings>()
 				.BindConfiguration("Jwt")
