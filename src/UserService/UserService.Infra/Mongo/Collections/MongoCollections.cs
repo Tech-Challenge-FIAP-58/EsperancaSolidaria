@@ -9,6 +9,8 @@ namespace UserService.Infra.Mongo.Collections
 
         public IMongoCollection<UserDonationStat> UserStatistics { get; }
 
+        public IMongoCollection<ProcessedMessage> ProcessedMessages { get; }
+
         public MongoCollections(
             IMongoDatabase database)
         {
@@ -19,6 +21,10 @@ namespace UserService.Infra.Mongo.Collections
             UserStatistics =
                 database.GetCollection<UserDonationStat>(
                     CollectionsNames.UserStatistics);
+
+            ProcessedMessages =
+                database.GetCollection<ProcessedMessage>(
+                    CollectionsNames.ProcessedMessages);
         }
     }
 }

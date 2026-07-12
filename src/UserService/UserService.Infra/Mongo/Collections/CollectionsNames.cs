@@ -4,6 +4,7 @@
     {
         public static string Users => "users";
         public static string UserStatistics => "user_statistics";
+        public static string ProcessedMessages => "processed_messages";
         public static string AuthLogs => "auth_logs";
     }
 }

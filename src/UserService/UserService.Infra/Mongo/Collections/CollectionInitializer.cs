@@ -32,6 +32,13 @@ public sealed class MongoCollectionInitializer
         }
 
         if (!collections.Contains(
+                CollectionsNames.ProcessedMessages))
+        {
+            await _database.CreateCollectionAsync(
+                CollectionsNames.ProcessedMessages);
+        }
+
+        if (!collections.Contains(
                 CollectionsNames.AuthLogs))
         {
             await _database.CreateCollectionAsync(

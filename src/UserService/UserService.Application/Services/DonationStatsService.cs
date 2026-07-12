@@ -1,7 +1,6 @@
 using Microsoft.Extensions.Logging;
 using UserService.Domain.Events;
 using UserService.Domain.Interfaces.Repository;
-using UserService.Domain.Models;
 
 namespace UserService.Application.Services
 {
@@ -9,30 +8,21 @@ namespace UserService.Application.Services
 		IUserStatisticsRepository repository,
 		ILogger<DonationStatsService> logger) : IDonationStatsService
 	{
-		public async Task RegisterDonation(DonationReceivedEvent evt)
+		public async Task RegisterDonation(Guid messageId, DonationReceivedEvent evt)
 		{
-			var stat = new UserDonationStat
-			{
-				Guid = evt.DonationId,
-				UserId = evt.DonorUserId,
-				CampaignId = evt.CampaignId,
-				Amount = evt.Amount,
-				OccurredAt = evt.OccurredAt
-			};
+			var applied = await repository.RegisterDonation(messageId, evt.DonorUserId, evt.Amount);
 
-			var registered = await repository.Add(stat);
-
-			if (registered)
+			if (applied)
 			{
 				logger.LogInformation(
-					"Doação {DonationId} registrada para o usuário {UserId} (campanha {CampaignId}, valor {Amount}).",
-					evt.DonationId, evt.DonorUserId, evt.CampaignId, evt.Amount);
+					"Mensagem {MessageId} somada ao total do usuário {UserId}: +{Amount}.",
+					messageId, evt.DonorUserId, evt.Amount);
 			}
 			else
 			{
 				logger.LogInformation(
-					"Doação {DonationId} já processada anteriormente; duplicata ignorada.",
-					evt.DonationId);
+					"Mensagem {MessageId} já processada anteriormente; ignorada.",
+					messageId);
 			}
 		}
 	}

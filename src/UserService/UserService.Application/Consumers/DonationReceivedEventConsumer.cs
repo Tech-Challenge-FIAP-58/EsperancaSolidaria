@@ -13,11 +13,14 @@ namespace UserService.Application.Consumers
 		{
 			var message = context.Message;
 
-			logger.LogInformation(
-				"Evento DonationReceived recebido: doação {DonationId} do usuário {UserId}.",
-				message.DonationId, message.DonorUserId);
+			var messageId = context.MessageId
+				?? throw new InvalidOperationException("Mensagem sem MessageId; não é possível garantir idempotência.");
 
-			await service.RegisterDonation(message);
+			logger.LogInformation(
+				"Evento DonationReceived recebido: mensagem {MessageId}, usuário {UserId}, valor {Amount}.",
+				messageId, message.DonorUserId, message.Amount);
+
+			await service.RegisterDonation(messageId, message);
 		}
 	}
 }

@@ -30,11 +30,8 @@ namespace UserService.Test
             {
                 var evt = new DonationReceivedEvent
                 {
-                    DonationId = Guid.NewGuid(),
                     DonorUserId = Guid.NewGuid(),
-                    CampaignId = Guid.NewGuid(),
-                    Amount = 100m,
-                    OccurredAt = DateTimeOffset.UtcNow
+                    Amount = 100m
                 };
 
                 await harness.Bus.Publish(evt);
@@ -46,9 +43,9 @@ namespace UserService.Test
                 var consumerHarness = harness.GetConsumerHarness<DonationReceivedEventConsumer>();
                 Assert.True(await consumerHarness.Consumed.Any<DonationReceivedEvent>());
 
-                // ...delegando ao serviço com o mesmo DonationId.
+                // ...delegando ao serviço com o MessageId do envelope e o mesmo usuário.
                 service.Verify(
-                    s => s.RegisterDonation(It.Is<DonationReceivedEvent>(e => e.DonationId == evt.DonationId)),
+                    s => s.RegisterDonation(It.IsAny<Guid>(), It.Is<DonationReceivedEvent>(e => e.DonorUserId == evt.DonorUserId)),
                     Times.Once);
             }
             finally

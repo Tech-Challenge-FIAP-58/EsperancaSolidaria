@@ -39,21 +39,27 @@ services:
     restart: unless-stopped
 
   # Opcional: só sobe com `--profile local-mongo`.
-  # Para usá-lo, aponte "Mongo:ConnectionString" para mongodb://localhost:27017
-  # (e ajuste "Mongo:Database") no appsettings do serviço.
+  # Roda como REPLICA SET single-node porque a idempotência do consumo usa
+  # transação (só disponível em replica set). O healthcheck inicia o RS na 1ª vez.
+  # Connection string local:
+  #   mongodb://localhost:27017/?replicaSet=rs0&directConnection=true
+  # (ajuste "Mongo:ConnectionString" e "Mongo:Database" no appsettings do serviço).
   mongo:
     image: mongo:7
     container_name: esperanca-mongo
     profiles: ["local-mongo"]
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
-      interval: 15s
+      test: >
+        mongosh --quiet --eval
+        "try { rs.status().ok } catch (e) { rs.initiate({ _id: 'rs0', members: [{ _id: 0, host: 'localhost:27017' }] }).ok }"
+      interval: 10s
       timeout: 10s
-      retries: 5
+      retries: 10
       start_period: 20s
     restart: unless-stopped
 

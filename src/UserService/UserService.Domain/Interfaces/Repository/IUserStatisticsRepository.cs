@@ -1,13 +1,9 @@
-using UserService.Domain.Models;
-
 namespace UserService.Domain.Interfaces.Repository
 {
 	public interface IUserStatisticsRepository
 	{
-		Task<bool> Add(UserDonationStat stat);
+		Task<bool> RegisterDonation(Guid messageId, Guid userId, decimal amount);
 
-		Task<long> CountByUser(Guid userId);
-
-		Task<decimal> SumAmountByUser(Guid userId);
+		Task<decimal> GetTotalByUser(Guid userId);
 	}
 }

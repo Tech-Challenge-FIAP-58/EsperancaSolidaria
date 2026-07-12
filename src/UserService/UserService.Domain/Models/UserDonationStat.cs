@@ -6,11 +6,8 @@ namespace UserService.Domain.Models
 	public class UserDonationStat : EntityBase
 	{
 		public Guid UserId { get; set; }
-		public Guid CampaignId { get; set; }
 
 		[BsonRepresentation(BsonType.Decimal128)]
-		public decimal Amount { get; set; }
-
-		public DateTimeOffset OccurredAt { get; set; }
+		public decimal TotalDonated { get; set; }
 	}
 }

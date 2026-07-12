@@ -6,39 +6,52 @@ using UserService.Infra.Mongo.Collections;
 
 namespace UserService.Infra.Repository
 {
-	public class UserStatisticsRepository(MongoCollections collections) : IUserStatisticsRepository
+	public class UserStatisticsRepository(MongoCollections collections, IMongoClient client) : IUserStatisticsRepository
 	{
-		private readonly IMongoCollection<UserDonationStat> _collection = collections.UserStatistics;
+		private readonly IMongoCollection<UserDonationStat> _stats = collections.UserStatistics;
+		private readonly IMongoCollection<ProcessedMessage> _processed = collections.ProcessedMessages;
+		private readonly IMongoClient _client = client;
 
-		/// <summary>
-		/// Insere o registro da doação. Diferente do MongoRepository.Register — que
-		/// traduz duplicata em exceção — aqui a colisão de _id (mesmo DonationId de uma
-		/// reentrega) é engolida e devolvida como false, tornando o consumo idempotente.
-		/// </summary>
-		public async Task<bool> Add(UserDonationStat stat)
+		public async Task<bool> RegisterDonation(Guid messageId, Guid userId, decimal amount)
 		{
+			using var session = await _client.StartSessionAsync();
+			session.StartTransaction();
+
 			try
 			{
-				await _collection.InsertOneAsync(stat);
+				await _processed.InsertOneAsync(
+					session,
+					new ProcessedMessage { MessageId = messageId, ProcessedAt = DateTime.UtcNow });
+
+				var filter = Builders<UserDonationStat>.Filter.Eq(x => x.UserId, userId);
+				var update = Builders<UserDonationStat>.Update
+					.Inc(x => x.TotalDonated, amount)
+					.SetOnInsert(x => x.Guid, Guid.NewGuid())
+					.SetOnInsert(x => x.CreatedAt, DateTimeOffset.Now)
+					.Set(x => x.UpdatedAt, DateTimeOffset.Now);
+
+				await _stats.UpdateOneAsync(
+					session, filter, update, new UpdateOptions { IsUpsert = true });
+
+				await session.CommitTransactionAsync();
 				return true;
 			}
 			catch (MongoWriteException ex) when (ex.IsDuplicateKey())
 			{
+				await session.AbortTransactionAsync();
 				return false;
+			}
+			catch
+			{
+				await session.AbortTransactionAsync();
+				throw;
 			}
 		}
 
-		public async Task<long> CountByUser(Guid userId) =>
-			await _collection.CountDocumentsAsync(x => x.UserId == userId);
-
-		public async Task<decimal> SumAmountByUser(Guid userId)
+		public async Task<decimal> GetTotalByUser(Guid userId)
 		{
-			var docs = await _collection
-				.Find(x => x.UserId == userId)
-				.Project(x => x.Amount)
-				.ToListAsync();
-
-			return docs.Sum();
+			var doc = await _stats.Find(x => x.UserId == userId).FirstOrDefaultAsync();
+			return doc?.TotalDonated ?? 0m;
 		}
 	}
 }

@@ -13,13 +13,23 @@ public sealed class UserStatisticsIndexes(
             _database.GetCollection<UserDonationStat>(
                 CollectionsNames.UserStatistics);
 
-        // Índice para as consultas de contagem/soma por usuário.
-        // A unicidade da doação já é garantida pelo _id (= DonationId),
-        // então não há índice único adicional aqui.
+        // Único: 1 documento de rollup por usuário.
         await stats.Indexes.CreateOneAsync(
             new CreateIndexModel<UserDonationStat>(
                 Builders<UserDonationStat>
                     .IndexKeys
-                    .Ascending(x => x.UserId)));
+                    .Ascending(x => x.UserId),
+                new CreateIndexOptions { Unique = true }));
+
+        var processed =
+            _database.GetCollection<ProcessedMessage>(
+                CollectionsNames.ProcessedMessages);
+
+        await processed.Indexes.CreateOneAsync(
+            new CreateIndexModel<ProcessedMessage>(
+                Builders<ProcessedMessage>
+                    .IndexKeys
+                    .Ascending(x => x.ProcessedAt),
+                new CreateIndexOptions { ExpireAfter = TimeSpan.FromDays(30) }));
     }
 }

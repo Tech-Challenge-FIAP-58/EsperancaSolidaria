@@ -4,6 +4,6 @@ namespace UserService.Application.Services
 {
 	public interface IDonationStatsService
 	{
-		Task RegisterDonation(DonationReceivedEvent evt);
+		Task RegisterDonation(Guid messageId, DonationReceivedEvent evt);
 	}
 }

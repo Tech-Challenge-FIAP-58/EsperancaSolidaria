@@ -3,7 +3,6 @@ using Moq;
 using UserService.Application.Services;
 using UserService.Domain.Events;
 using UserService.Domain.Interfaces.Repository;
-using UserService.Domain.Models;
 
 namespace UserService.Test
 {
@@ -19,43 +18,31 @@ namespace UserService.Test
 
         private static DonationReceivedEvent NewEvent() => new()
         {
-            DonationId = Guid.NewGuid(),
             DonorUserId = Guid.NewGuid(),
-            CampaignId = Guid.NewGuid(),
-            Amount = 150.50m,
-            OccurredAt = DateTimeOffset.UtcNow
+            Amount = 150.50m
         };
 
         [Fact]
-        public async Task RegisterDonation_MapsFields_UsesDonationIdAsId_AndAdds()
+        public async Task RegisterDonation_ForwardsMessageIdUserAndAmount()
         {
+            var messageId = Guid.NewGuid();
             var evt = NewEvent();
-            UserDonationStat? saved = null;
-            _repo.Setup(r => r.Add(It.IsAny<UserDonationStat>()))
-                .Callback<UserDonationStat>(s => saved = s)
-                .ReturnsAsync(true);
+            _repo.Setup(r => r.RegisterDonation(messageId, evt.DonorUserId, evt.Amount)).ReturnsAsync(true);
 
-            await _service.RegisterDonation(evt);
+            await _service.RegisterDonation(messageId, evt);
 
-            Assert.NotNull(saved);
-            Assert.Equal(evt.DonationId, saved!.Guid);   // _id == DonationId (idempotência)
-            Assert.Equal(evt.DonorUserId, saved.UserId);
-            Assert.Equal(evt.CampaignId, saved.CampaignId);
-            Assert.Equal(evt.Amount, saved.Amount);
-            Assert.Equal(evt.OccurredAt, saved.OccurredAt);
-            _repo.Verify(r => r.Add(It.IsAny<UserDonationStat>()), Times.Once);
+            _repo.Verify(r => r.RegisterDonation(messageId, evt.DonorUserId, evt.Amount), Times.Once);
         }
 
         [Fact]
         public async Task RegisterDonation_WhenDuplicate_DoesNotThrow()
         {
             var evt = NewEvent();
-            _repo.Setup(r => r.Add(It.IsAny<UserDonationStat>())).ReturnsAsync(false);
+            _repo.Setup(r => r.RegisterDonation(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<decimal>())).ReturnsAsync(false);
 
-            var ex = await Record.ExceptionAsync(() => _service.RegisterDonation(evt));
+            var ex = await Record.ExceptionAsync(() => _service.RegisterDonation(Guid.NewGuid(), evt));
 
             Assert.Null(ex);
-            _repo.Verify(r => r.Add(It.IsAny<UserDonationStat>()), Times.Once);
         }
     }
 }
