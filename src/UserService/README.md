@@ -65,6 +65,9 @@ Como o RabbitMQ entrega *at-least-once*, a mesma mensagem pode chegar duas vezes
 | `GET` | `/User/{id}/Total` | GestorONG (total de um usuário) |
 | `PUT` | `/User/Update/{id}` | GestorONG |
 | `DELETE` | `/User/Delete/{id}` | GestorONG |
+| `GET` | `/Users/Me` | Autenticado (próprio perfil) |
+| `PUT` | `/Users/Me` | Autenticado (autoatualização) |
+| `DELETE` | `/Users/Me` | Autenticado (autorremoção) |
 | `GET` | `/Statistics/MyTotal` | Autenticado (total do próprio usuário) |
 
 **Health checks:** `/health/live` (liveness), `/health/ready` e `/health` (readiness — pinga o Mongo).
