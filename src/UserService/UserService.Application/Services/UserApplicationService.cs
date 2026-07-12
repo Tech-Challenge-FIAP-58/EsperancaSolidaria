@@ -66,7 +66,7 @@ namespace UserService.Application.Services
 
             user.UpdatedAt = DateTimeOffset.Now;
 
-            await _userRepository.Update(id, user);
+            await _userRepository.Update(user);
             return NoContent();
         }
 

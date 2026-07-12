@@ -142,7 +142,7 @@ namespace UserService.Test
             _repo.Setup(r => r.GetById(user.Guid)).ReturnsAsync(user);
             _mapper.Setup(m => m.Map(dto, user)).Callback<UserUpdateDto, User>((s, d) => { if (s.Name != null) d.Name = s.Name; });
             _hasher.Setup(h => h.Hash(dto.Password!)).Returns("hashed-pass");
-            _repo.Setup(r => r.Update(user.Guid, It.IsAny<User>())).Callback<Guid, User>((_, u) => captured = u).ReturnsAsync(true);
+            _repo.Setup(r => r.Update(It.IsAny<User>())).Callback<User>(u => captured = u).ReturnsAsync(true);
 
             var resp = await _service.Update(user.Guid, dto);
 
@@ -152,7 +152,7 @@ namespace UserService.Test
             Assert.Equal("Novo Nome", captured!.Name);
             Assert.Equal("hashed-pass", captured.Password);
             _hasher.Verify(h => h.Hash(dto.Password!), Times.Once);
-            _repo.Verify(r => r.Update(user.Guid, It.IsAny<User>()), Times.Once);
+            _repo.Verify(r => r.Update(It.IsAny<User>()), Times.Once);
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace UserService.Test
 
             _repo.Setup(r => r.GetById(user.Guid)).ReturnsAsync(user);
             _mapper.Setup(m => m.Map(dto, user));
-            _repo.Setup(r => r.Update(user.Guid, It.IsAny<User>())).ReturnsAsync(true);
+            _repo.Setup(r => r.Update(It.IsAny<User>())).ReturnsAsync(true);
 
             var resp = await _service.Update(user.Guid, dto);
 

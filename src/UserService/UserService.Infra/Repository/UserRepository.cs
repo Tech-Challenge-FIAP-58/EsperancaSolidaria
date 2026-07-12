@@ -23,7 +23,7 @@ namespace UserService.Infra.Repository
 
         public async Task<bool> Create(User user) => await Register(user);
 
-        public async Task<bool> Update(Guid id, User userUpdate) => await Edit(userUpdate);
+        public async Task<bool> Update(User userUpdate) => await Edit(userUpdate);
 
         public async Task<bool> Remove(User entity) => await Delete(entity);
     }

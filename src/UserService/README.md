@@ -73,17 +73,33 @@ Como o RabbitMQ entrega *at-least-once*, a mesma mensagem pode chegar duas vezes
 
 **Pré-requisitos:** .NET 10 SDK e Docker.
 
-O `appsettings.json` já aponta o Mongo para o cluster Atlas do projeto, então só o RabbitMQ precisa subir localmente:
+### Configuração (segredos)
+
+O `appsettings.json` versionado **não contém segredos** — `Jwt:Key`, `Mongo:ConnectionString` e todo o bloco `BootstrapGestor` (Email/Cpf/Password) vêm vazios. O `appsettings.example.json` documenta todas as chaves. Forneça os valores por **user-secrets** (dev) ou **variáveis de ambiente** (demais ambientes); ambos sobrescrevem o `appsettings.json`:
 
 ```bash
 cd src/UserService
+dotnet user-secrets set "Jwt:Key" "<32+ bytes aleatorios>" --project UserService.WebApi
+dotnet user-secrets set "Mongo:ConnectionString" "<connection string do Atlas>" --project UserService.WebApi
+dotnet user-secrets set "BootstrapGestor:Email" "<email do gestor>" --project UserService.WebApi
+dotnet user-secrets set "BootstrapGestor:Cpf" "<cpf do gestor>" --project UserService.WebApi
+dotnet user-secrets set "BootstrapGestor:Password" "<senha do gestor>" --project UserService.WebApi
+```
+
+O equivalente por variável de ambiente usa `__` no lugar de `:` (ex.: `Jwt__Key`). Para o container, as mesmas chaves ficam num `.env` (veja `.env.example`).
+
+### Subindo
+
+Com os segredos configurados, só o RabbitMQ precisa subir localmente:
+
+```bash
 docker compose up -d          # RabbitMQ (painel em http://localhost:15672 — guest/guest)
 dotnet run --project UserService.WebApi
 ```
 
 A API sobe em `http://localhost:5222`. Em ambiente de desenvolvimento, o **Swagger** fica em `http://localhost:5222/swagger`.
 
-Para logar como gestor, use as credenciais do `BootstrapGestor` (`appsettings.json`) em `POST /Auth/Login` e envie o token no header `Authorization: Bearer <token>`.
+Para logar como gestor, use as credenciais do `BootstrapGestor` (e-mail e senha configurados nos secrets/`.env`) em `POST /Auth/Login` e envie o token no header `Authorization: Bearer <token>`.
 
 ### Mongo local (opcional)
 

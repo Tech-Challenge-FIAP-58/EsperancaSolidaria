@@ -12,12 +12,16 @@ namespace UserService.WebApi.Controllers
             Func<Task<IApiResponse<TResult>>> serviceMethod)
         {
             var result = await serviceMethod();
+            var status = (int)result.StatusCode;
 
-            // 204 não deve ter body
+            if (!result.IsSuccess)
+                return Problem(detail: result.Message, statusCode: status);
+
+            // 204 não tem body
             if (result.StatusCode == HttpStatusCode.NoContent)
-                return StatusCode((int)HttpStatusCode.NoContent);
+                return StatusCode(status);
 
-            return StatusCode((int)result.StatusCode, result);
+            return StatusCode(status, result.ResultValue);
         }
     }
 }

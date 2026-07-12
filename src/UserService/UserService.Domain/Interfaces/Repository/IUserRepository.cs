@@ -10,7 +10,7 @@ namespace UserService.Domain.Interfaces.Repository
         Task<bool> ExistsByEmail(string email);
         Task<bool> ExistsByCpf(string cpf);
         Task<bool> Create(User user);
-        Task<bool> Update(Guid id, User userUpdate);
+        Task<bool> Update(User userUpdate);
         Task<bool> Remove(User entity);
     }
 }
