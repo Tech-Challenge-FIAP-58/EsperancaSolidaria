@@ -24,6 +24,10 @@ namespace CampaignService.WebApi.Extensions
 		{
 			builder.Services.AddMassTransit(x =>
 			{
+				// Prefixo por serviço: garante uma fila própria (campaign-donation-received-event),
+				// distinta da do UserService, para que o Publish faça fan-out para ambos.
+				x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("campaign", false));
+
 				x.AddConsumer<DonationReceivedEventConsumer>();
 
 				x.UsingRabbitMq((context, cfg) =>
