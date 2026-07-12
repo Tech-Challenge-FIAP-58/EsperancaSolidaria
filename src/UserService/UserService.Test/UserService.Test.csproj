@@ -24,6 +24,7 @@
     <ProjectReference Include="..\UserService.Application\UserService.Application.csproj" />
     <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
     <ProjectReference Include="..\UserService.Infra\UserService.Infra.csproj" />
+    <ProjectReference Include="..\..\Shared\EsperancaSolidaria.Contracts\EsperancaSolidaria.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

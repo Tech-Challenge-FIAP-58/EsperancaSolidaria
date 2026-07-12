@@ -1,10 +1,10 @@
+using EsperancaSolidaria.Contracts.Events;
 using MassTransit;
 using MassTransit.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using UserService.Application.Consumers;
 using UserService.Application.Services;
-using UserService.Domain.Events;
 
 namespace UserService.Test
 {

@@ -1,5 +1,5 @@
+using EsperancaSolidaria.Contracts.Events;
 using Microsoft.Extensions.Logging;
-using UserService.Domain.Events;
 using UserService.Domain.Interfaces.Repository;
 
 namespace UserService.Application.Services

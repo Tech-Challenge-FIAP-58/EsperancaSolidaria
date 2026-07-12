@@ -1,7 +1,7 @@
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using EsperancaSolidaria.Contracts.Events;
 using UserService.Application.Services;
-using UserService.Domain.Events;
 
 namespace UserService.Application.Consumers
 {

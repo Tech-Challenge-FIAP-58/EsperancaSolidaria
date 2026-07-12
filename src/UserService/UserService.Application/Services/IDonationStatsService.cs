@@ -1,4 +1,4 @@
-using UserService.Domain.Events;
+using EsperancaSolidaria.Contracts.Events;
 
 namespace UserService.Application.Services
 {

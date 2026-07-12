@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using EsperancaSolidaria.Contracts.Events;
 using UserService.Application.Services;
-using UserService.Domain.Events;
 using UserService.Domain.Interfaces.Repository;
 
 namespace UserService.Test

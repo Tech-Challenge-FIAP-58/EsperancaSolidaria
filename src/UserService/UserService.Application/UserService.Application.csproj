@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\UserService.Domain\UserService.Domain.csproj" />
+    <ProjectReference Include="..\..\Shared\EsperancaSolidaria.Contracts\EsperancaSolidaria.Contracts.csproj" />
   </ItemGroup>
 
 </Project>
