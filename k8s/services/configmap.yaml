@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: servies-config
+  namespace: services
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  Jwt__Issuer: "esperanca_solidaria"
+  Jwt__Audience: "esperanca_solidaria"
