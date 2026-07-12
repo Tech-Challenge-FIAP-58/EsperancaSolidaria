@@ -44,5 +44,18 @@ namespace UserService.Test
 
             Assert.Null(ex);
         }
+
+        [Fact]
+        public async Task GetTotal_ReturnsUserTotalFromRepository()
+        {
+            var userId = Guid.NewGuid();
+            _repo.Setup(r => r.GetTotalByUser(userId)).ReturnsAsync(275.50m);
+
+            var resp = await _service.GetTotal(userId);
+
+            Assert.True(resp.IsSuccess);
+            Assert.Equal(userId, resp.ResultValue!.UserId);
+            Assert.Equal(275.50m, resp.ResultValue.TotalDonated);
+        }
     }
 }

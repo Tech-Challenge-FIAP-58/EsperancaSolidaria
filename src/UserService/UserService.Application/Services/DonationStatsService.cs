@@ -1,12 +1,14 @@
 using EsperancaSolidaria.Contracts.Events;
 using Microsoft.Extensions.Logging;
+using UserService.Application.Inputs;
+using UserService.Application.Web;
 using UserService.Domain.Interfaces.Repository;
 
 namespace UserService.Application.Services
 {
 	public class DonationStatsService(
 		IUserStatisticsRepository repository,
-		ILogger<DonationStatsService> logger) : IDonationStatsService
+		ILogger<DonationStatsService> logger) : BaseService, IDonationStatsService
 	{
 		public async Task RegisterDonation(Guid messageId, DonationReceivedEvent evt)
 		{
@@ -24,6 +26,12 @@ namespace UserService.Application.Services
 					"Mensagem {MessageId} já processada anteriormente; ignorada.",
 					messageId);
 			}
+		}
+
+		public async Task<IApiResponse<UserDonationTotalDto>> GetTotal(Guid userId)
+		{
+			var total = await repository.GetTotalByUser(userId);
+			return Ok(new UserDonationTotalDto(userId, total));
 		}
 	}
 }

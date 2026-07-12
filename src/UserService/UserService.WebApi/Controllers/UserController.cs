@@ -7,7 +7,7 @@ using UserService.Domain.Models;
 namespace UserService.WebApi.Controllers
 {
     [Authorize(Roles = Roles.GestorONG)]
-    public class UserController(IUserApplicationService service, ILogger<UserController> logger) : StandardController
+    public class UserController(IUserApplicationService service, IDonationStatsService donationStats, ILogger<UserController> logger) : StandardController
     {
         [HttpPost("Create")]
         [ProducesResponseType(StatusCodes.Status201Created)]
@@ -37,6 +37,15 @@ namespace UserService.WebApi.Controllers
         {
             logger.LogInformation("GET BY ID - Listar usuário de ID: {Id}", id);
             return await ExecuteAsync(() => service.GetById(id));
+        }
+
+        [HttpGet("{id:guid}/Total")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetDonationTotal(Guid id)
+        {
+            logger.LogInformation("GET - Total doado do usuário de ID: {Id}", id);
+            return await ExecuteAsync(() => donationStats.GetTotal(id));
         }
 
         [HttpPut("Update/{id:guid}")]
