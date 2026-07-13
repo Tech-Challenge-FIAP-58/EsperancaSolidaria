@@ -36,6 +36,7 @@ namespace UserService.WebApi.Extensions
 			builder.Services.AddSingleton<MongoCollections>();
 			builder.Services.AddSingleton<MongoCollectionInitializer>();
 			builder.Services.AddSingleton<UserIndexes>();
+			builder.Services.AddSingleton<UserStatisticsIndexes>();
 			builder.Services.AddSingleton<MongoBootstrap>();
 
 			return builder;

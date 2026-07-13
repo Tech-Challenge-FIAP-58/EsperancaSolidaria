@@ -23,6 +23,7 @@ public sealed class UserIndexes(
                 {
                     Unique = true
                 }));
+
         await users.Indexes.CreateOneAsync(
             new CreateIndexModel<User>(
                 Builders<User>

@@ -5,9 +5,12 @@ ARG DOTNET_VERSION=10.0
 ARG BUILD_CONFIGURATION=Development
 ARG APP_VERSION=1.0.0
 
+# IMPORTANTE: o contexto de build é a pasta `src/` (monorepo), não `src/UserService`,
+# porque o serviço referencia o projeto compartilhado Shared/EsperancaSolidaria.Contracts.
+# No CI: `docker build -f UserService.WebApi/Dockerfile ..` (contexto = src/).
+
 # =============================================================
 # STAGE 1: Base runtime
-# Definido primeiro para ser reutilizado no stage final
 # =============================================================
 FROM mcr.microsoft.com/dotnet/aspnet:${DOTNET_VERSION} AS base
 
@@ -16,40 +19,39 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 WORKDIR /app
 
-# Permissões antes de copiar qualquer coisa
 RUN chown -R appuser:appgroup /app
 
 EXPOSE 8080
 
 # =============================================================
 # STAGE 2: Restore de dependências (layer altamente cacheável)
-# Layer separado: só re-executa se algum .csproj/.sln mudar
+# Só re-executa se algum .csproj mudar
 # =============================================================
 FROM mcr.microsoft.com/dotnet/sdk:${DOTNET_VERSION} AS restore
 
 WORKDIR /src
 
-COPY UserService.sln ./
+# .csproj copiados preservando a estrutura do monorepo (serviço + contrato compartilhado)
+COPY UserService/UserService.WebApi/UserService.WebApi.csproj UserService/UserService.WebApi/
+COPY UserService/UserService.Application/UserService.Application.csproj UserService/UserService.Application/
+COPY UserService/UserService.Infra/UserService.Infra.csproj UserService/UserService.Infra/
+COPY UserService/UserService.Domain/UserService.Domain.csproj UserService/UserService.Domain/
+COPY Shared/EsperancaSolidaria.Contracts/EsperancaSolidaria.Contracts.csproj Shared/EsperancaSolidaria.Contracts/
 
-COPY UserService.WebApi/UserService.WebApi.csproj UserService.WebApi/
-COPY UserService.Application/UserService.Application.csproj UserService.Application/
-COPY UserService.Infra/UserService.Infra.csproj UserService.Infra/
-COPY UserService.Domain/UserService.Domain.csproj UserService.Domain/
-
-RUN dotnet restore UserService.WebApi/UserService.WebApi.csproj
+RUN dotnet restore UserService/UserService.WebApi/UserService.WebApi.csproj
 
 # =============================================================
 # STAGE 3: Build + Publish
-# --no-restore: aproveita o cache do stage anterior
 # =============================================================
 FROM restore AS publish
 
 ARG BUILD_CONFIGURATION
 
-# Copia o restante do código fonte
-COPY . .
+# Código-fonte dos projetos usados: o serviço e os contratos compartilhados
+COPY UserService/ UserService/
+COPY Shared/ Shared/
 
-RUN dotnet publish UserService.WebApi/UserService.WebApi.csproj \
+RUN dotnet publish UserService/UserService.WebApi/UserService.WebApi.csproj \
     -c ${BUILD_CONFIGURATION} \
     --no-restore \
     -o /app/publish \
@@ -61,7 +63,6 @@ RUN dotnet publish UserService.WebApi/UserService.WebApi.csproj \
 FROM base AS final
 
 # Labels OCI — rastreabilidade no DockerHub, Kubernetes e pipelines CI/CD
-# ARGs precisam ser redeclarados após cada FROM para ficarem visíveis
 ARG APP_VERSION
 LABEL org.opencontainers.image.title="UserService.WebApi" \
       org.opencontainers.image.description="Microsserviço de usuários - Esperança Solidária" \
@@ -75,17 +76,13 @@ WORKDIR /app
 COPY --from=publish --chown=appuser:appgroup /app/publish .
 
 # Variáveis de ambiente de runtime do .NET
-# DOTNET_RUNNING_IN_CONTAINER: ativa otimizações internas do runtime para containers
-# DOTNET_USE_POLLING_FILE_WATCHER: FALSE em produção (só útil em dev com hot reload)
 ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_RUNNING_IN_CONTAINER=true \
     DOTNET_USE_POLLING_FILE_WATCHER=false
 
-# Aplica usuário não-root
 USER appuser
 
 # Health check via wget (disponível na imagem aspnet — curl NÃO está)
-# start-period: tempo para o app inicializar antes de começar a checar
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
     CMD wget -qO- http://localhost:8080/health || exit 1
 
