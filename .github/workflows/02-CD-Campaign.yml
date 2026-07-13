@@ -1,16 +1,16 @@
-name: UserService CD
+name: CampaignService CD
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'src/UserService/**'
+      - 'src/CampaignService/**'
       - 'src/Shared/**'
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: tech-challenge-fiap-58/user-service
+  IMAGE_NAME: tech-challenge-fiap-58/campaign-service
 
 jobs:
   publish:
@@ -23,7 +23,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: src/UserService
+        working-directory: src/CampaignService
 
     steps:
       - name: Checkout
@@ -35,19 +35,19 @@ jobs:
           dotnet-version: 10.0.x
 
       - name: Restore
-        run: dotnet restore UserService.sln
+        run: dotnet restore CampaignService.sln
 
       - name: Build
         run: |
           dotnet build \
-            UserService.sln \
+            CampaignService.sln \
             --configuration Release \
             --no-restore
 
       - name: Run Tests
         run: |
           dotnet test \
-            UserService.sln \
+            CampaignService.sln \
             --configuration Release \
             --no-build
 
@@ -66,8 +66,8 @@ jobs:
           docker build \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
             -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
-            -f UserService.WebApi/Dockerfile \
-            .
+            -f CampaignService.WebApi/Dockerfile \
+            ..
 
       - name: Push Docker Image
         run: |

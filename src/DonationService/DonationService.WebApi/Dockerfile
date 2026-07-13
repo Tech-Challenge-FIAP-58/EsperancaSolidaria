@@ -7,7 +7,7 @@ ARG APP_VERSION=1.0.0
 
 # IMPORTANTE: o contexto de build é a pasta `src/` (monorepo), não `src/DonationService`,
 # porque o serviço referencia o projeto compartilhado Shared/EsperancaSolidaria.Contracts.
-# No CI: `docker build -f DonationService.WebApi/Dockerfile ..` (contexto = src/).
+# No CI: `docker build -f DonationService/DonationService.WebApi/Dockerfile .` (contexto = src/).
 
 # =============================================================
 # STAGE 1: Base runtime

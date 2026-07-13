@@ -7,7 +7,7 @@ ARG APP_VERSION=1.0.0
 
 # IMPORTANTE: o contexto de build é a pasta `src/` (monorepo), não `src/CampaignService`,
 # porque o serviço referencia o projeto compartilhado Shared/EsperancaSolidaria.Contracts.
-# No CI: `docker build -f CampaignService.WebApi/Dockerfile ..` (contexto = src/).
+# No CI: `docker build -f CampaignService/CampaignService.WebApi/Dockerfile .` (contexto = src/).
 
 # =============================================================
 # STAGE 1: Base runtime
@@ -34,7 +34,7 @@ WORKDIR /src
 # .csproj copiados preservando a estrutura do monorepo (serviço + contrato compartilhado)
 COPY CampaignService/CampaignService.WebApi/CampaignService.WebApi.csproj CampaignService/CampaignService.WebApi/
 COPY CampaignService/CampaignService.Application/CampaignService.Application.csproj CampaignService/CampaignService.Application/
-COPY CampaignService/CamapaignService.Infra/CamapaignService.Infra.csproj CampaignService/CamapaignService.Infra/
+COPY CampaignService/CampaignService.Infra/CampaignService.Infra.csproj CampaignService/CampaignService.Infra/
 COPY CampaignService/CampaignService.Domain/CampaignService.Domain.csproj CampaignService/CampaignService.Domain/
 COPY Shared/EsperancaSolidaria.Contracts/EsperancaSolidaria.Contracts.csproj Shared/EsperancaSolidaria.Contracts/
 

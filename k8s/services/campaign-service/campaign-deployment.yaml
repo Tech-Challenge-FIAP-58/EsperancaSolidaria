@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: Deployment
 metadata:
-  name: user-deployment
+  name: campaign-deployment
   namespace: services
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: campaign-service
   template:
     metadata:
       labels:
-        app: user-api
+        app: campaign-api
     spec:
 
       initContainers:
@@ -30,14 +30,14 @@ spec:
 
       containers:
         - name: user-api
-          image: ghcr.io/tech-challenge-fiap-58/user-service:main
+          image: ghcr.io/tech-challenge-fiap-58/campaign-service:main
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
 
           envFrom:
             - configMapRef:
-                name: user-api-config
+                name: campaign-api-config
             - configMapRef:
                 name: services-config
 
@@ -83,24 +83,6 @@ spec:
                 secretKeyRef:
                   name: services-secrets
                   key: rabbitMQDefaultHost
-            
-            - name: BootstrapAdmin__Cpf
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secrets
-                  key: bootstrapAdminCpf
-                  
-            - name: BootstrapAdmin__Email
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secrets
-                  key: bootstrapAdminEmail
-
-            - name: BootstrapAdmin__Password
-              valueFrom:
-                secretKeyRef:
-                  name: user-api-secrets
-                  key: bootstrapAdminPassword
 
           readinessProbe:
             httpGet:

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CamapaignService.Infra\CamapaignService.Infra.csproj" />
+    <ProjectReference Include="..\CampaignService.Infra\CampaignService.Infra.csproj" />
     <ProjectReference Include="..\CampaignService.Domain\CampaignService.Domain.csproj" />
     <ProjectReference Include="..\..\Shared\EsperancaSolidaria.Contracts\EsperancaSolidaria.Contracts.csproj" />
   </ItemGroup>

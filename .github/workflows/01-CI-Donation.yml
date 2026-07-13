@@ -1,0 +1,75 @@
+name: DonationService CI
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'src/DonationService/**'
+      - 'src/Shared/**'
+
+  push:
+    branches:
+      - develop
+    paths:
+      - 'src/DonationService/**'
+      - 'src/Shared/**'
+
+jobs:
+  build-and-test:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: src/DonationService
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore DonationService.sln
+
+      - name: Build
+        run: |
+          dotnet build \
+          DonationService.sln \
+          --configuration Release \
+          --no-restore
+
+      - name: Run Tests
+        run: |
+          dotnet test \
+          DonationService.sln \
+          --configuration Release \
+          --no-build \
+          --collect:"XPlat Code Coverage"
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: donation-service-test-results
+          path: |
+            DonationService/tests/**/TestResults
+
+      - name: Docker Build Validation
+        run: |
+          docker build \
+          -t donation-service:ci \
+          -f DonationService.WebApi/Dockerfile \
+          ..
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: donation-service-build
+          path: |
+            DonationService/src/**/bin/Release
