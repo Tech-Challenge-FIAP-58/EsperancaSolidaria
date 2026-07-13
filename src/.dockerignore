@@ -1,0 +1,28 @@
+# Contexto de build agora é src/ (monorepo). Este .dockerignore vale para os builds
+# que usam src/ como contexto (ex.: UserService que referencia Shared/).
+**/.classpath
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/*.*proj.user
+**/*.dbmdl
+**/*.jfm
+**/azds.yaml
+**/bin
+**/charts
+**/docker-compose*
+**/Dockerfile*
+**/node_modules
+**/npm-debug.log
+**/obj
+**/secrets.dev.yaml
+**/values.dev.yaml
+**/TestResults
+LICENSE
+README.md

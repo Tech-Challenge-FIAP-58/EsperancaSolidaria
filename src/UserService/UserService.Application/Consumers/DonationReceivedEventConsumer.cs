@@ -1,15 +1,26 @@
-﻿using MassTransit;
+using MassTransit;
 using Microsoft.Extensions.Logging;
-using UserService.Domain.Events;
+using EsperancaSolidaria.Contracts.Events;
+using UserService.Application.Services;
 
 namespace UserService.Application.Consumers
 {
 	public class DonationReceivedEventConsumer(
+		IDonationStatsService service,
 		ILogger<DonationReceivedEventConsumer> logger) : IConsumer<DonationReceivedEvent>
 	{
-		public Task Consume(ConsumeContext<DonationReceivedEvent> context)
+		public async Task Consume(ConsumeContext<DonationReceivedEvent> context)
 		{
-			throw new NotImplementedException();
+			var message = context.Message;
+
+			var messageId = context.MessageId
+				?? throw new InvalidOperationException("Mensagem sem MessageId; não é possível garantir idempotência.");
+
+			logger.LogInformation(
+				"Evento DonationReceived recebido: mensagem {MessageId}, usuário {UserId}, valor {Amount}.",
+				messageId, message.DonorUserId, message.Amount);
+
+			await service.RegisterDonation(messageId, message);
 		}
 	}
 }
