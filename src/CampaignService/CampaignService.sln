@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampaignService.Domain", "C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampaignService.Application", "CampaignService.Application\CampaignService.Application.csproj", "{DD864FE5-CF0B-4C46-892F-B9254CB0A722}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CamapaignService.Infra", "CamapaignService.Infra\CamapaignService.Infra.csproj", "{B0BAA969-AC65-46F2-96B5-CDC46F97E281}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CampaignService.Infra", "CampaignService.Infra\CampaignService.Infra.csproj", "{B0BAA969-AC65-46F2-96B5-CDC46F97E281}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

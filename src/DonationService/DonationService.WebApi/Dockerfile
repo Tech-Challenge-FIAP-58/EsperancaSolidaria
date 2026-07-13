@@ -1,7 +1,7 @@
 # =============================================================
 # ARGs globais — disponíveis em todos os stages
 # =============================================================
-ARG DOTNET_VERSION=8.0
+ARG DOTNET_VERSION=10.0
 ARG BUILD_CONFIGURATION=Development
 ARG APP_VERSION=1.0.0
 
@@ -31,9 +31,12 @@ WORKDIR /src
 
 COPY DonationService.sln ./
 
-COPY src/DonationService/DonationService.WebApi.csproj src/DonationService.WebApi/
+COPY DonationService.WebApi/DonationService.WebApi.csproj DonationService.WebApi/
+COPY DonationService.Application/DonationService.Application.csproj DonationService.Application/
+COPY DonationService.Infra/DonationService.Infra.csproj DonationService.Infra/
+COPY DonationService.Domain/DonationService.Domain.csproj DonationService.Domain/
 
-RUN dotnet restore src/DonationService/DonationService.WebApi.csproj
+RUN dotnet restore DonationService.WebApi/DonationService.WebApi.csproj
 
 # =============================================================
 # STAGE 3: Build + Publish
@@ -46,7 +49,7 @@ ARG BUILD_CONFIGURATION
 # Copia o restante do código fonte
 COPY . .
 
-RUN dotnet publish src/DonationService/DonationService.WebApi.csproj \
+RUN dotnet publish DonationService.WebApi/DonationService.WebApi.csproj \
     -c ${BUILD_CONFIGURATION} \
     --no-restore \
     -o /app/publish \
@@ -61,7 +64,7 @@ FROM base AS final
 # ARGs precisam ser redeclarados após cada FROM para ficarem visíveis
 ARG APP_VERSION
 LABEL org.opencontainers.image.title="DonationService.WebApi" \
-      org.opencontainers.image.description="Microsserviço de usuários - Esperança Solidária" \
+      org.opencontainers.image.description="Microsserviço de doações - Esperança Solidária" \
       org.opencontainers.image.version="${APP_VERSION}" \
       org.opencontainers.image.vendor="Thiago Olszewski" \
       org.opencontainers.image.source="https://github.com/Tech-Challenge-FIAP-58/EsperancaSolidaria"
