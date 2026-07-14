@@ -1,9 +1,9 @@
-﻿using DonationService.Domain.Events;
+using EsperancaSolidaria.Contracts.Events;
 
 namespace DonationService.Domain.Interfaces.MassTransit.Producer
 {
 	public interface IDonationReceivedEventProducer
 	{
-		Task Send(DonationReceivedEvent message);
+		Task Publish(DonationReceivedEvent message);
 	}
 }
