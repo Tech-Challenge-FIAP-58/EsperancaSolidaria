@@ -1,12 +1,15 @@
-﻿using MongoDB.Driver;
-using UserService.Domain.Models;
+﻿using UserService.Domain.Models;
+using MongoDB.Driver;
 
 namespace UserService.Infra.Mongo.Collections
 {
-
     public sealed class MongoCollections
     {
         public IMongoCollection<User> Users { get; }
+
+        public IMongoCollection<UserDonationStat> UserStatistics { get; }
+
+        public IMongoCollection<ProcessedMessage> ProcessedMessages { get; }
 
         public MongoCollections(
             IMongoDatabase database)
@@ -14,6 +17,14 @@ namespace UserService.Infra.Mongo.Collections
             Users =
                 database.GetCollection<User>(
                     CollectionsNames.Users);
+
+            UserStatistics =
+                database.GetCollection<UserDonationStat>(
+                    CollectionsNames.UserStatistics);
+
+            ProcessedMessages =
+                database.GetCollection<ProcessedMessage>(
+                    CollectionsNames.ProcessedMessages);
         }
     }
 }

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>EsperancaSolidaria.Contracts</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Projeto de contratos: apenas mensagens (eventos/comandos) compartilhadas entre
+       serviços. Sem dependências de framework/infra de propósito. -->
+
+</Project>
