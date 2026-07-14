@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MongoDB.Bson" Version="3.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Shared\EsperancaSolidaria.Contracts\EsperancaSolidaria.Contracts.csproj" />
   </ItemGroup>
 
