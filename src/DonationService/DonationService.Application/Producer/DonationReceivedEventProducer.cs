@@ -1,17 +1,13 @@
-﻿using DonationService.Domain.Events;
 using DonationService.Domain.Interfaces.MassTransit.Producer;
+using EsperancaSolidaria.Contracts.Events;
 using MassTransit;
 
 namespace DonationService.Application.Producer
 {
-	public class DonationReceivedEventProducer(ISendEndpointProvider sendEndpointProvider) : IDonationReceivedEventProducer
+	// Publica em fan-out: o evento é entregue a todos os serviços inscritos
+	// (UserService e CampaignService), cada um na sua própria fila.
+	public class DonationReceivedEventProducer(IPublishEndpoint publishEndpoint) : IDonationReceivedEventProducer
 	{
-		public async Task Send(DonationReceivedEvent message)
-		{
-			var endpoint = await sendEndpointProvider
-				.GetSendEndpoint(new Uri("queue:DonationReceivedEvent"));
-
-			await endpoint.Send(message);
-		}
+		public Task Publish(DonationReceivedEvent message) => publishEndpoint.Publish(message);
 	}
 }

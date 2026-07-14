@@ -1,0 +1,56 @@
+# Stack COMPLETO do UserService local: RabbitMQ (broker) + a API containerizada.
+# Alternativa ao docker-compose.yml (que sobe só o broker, pra quando você roda a API no host).
+#
+# Os segredos da API vêm do .env (não versionado) via env_file — crie o seu a partir do
+# .env.example. Mongo aponta para o Atlas (rede externa); o RabbitMQ é resolvido pelo nome
+# do serviço "rabbitmq" dentro da rede do compose (por isso o override RabbitMQ__Host=rabbitmq).
+#
+#   Subir tudo:    docker compose -f docker-compose-completo.yml up -d --build
+#   API:           http://localhost:8080   (Swagger em /swagger)
+#   Painel Rabbit: http://localhost:15672  (guest / guest)
+#   Parar:         docker compose -f docker-compose-completo.yml down
+#   Zerar:         docker compose -f docker-compose-completo.yml down -v
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: esperanca-rabbitmq
+    hostname: esperanca-rabbitmq
+    ports:
+      - "5672:5672"     # AMQP — usado pela aplicação
+      - "15672:15672"   # painel de gestão (UI web)
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_VHOST: "/"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+
+  userservice:
+    build:
+      # Contexto = src/ (monorepo): a API referencia Shared/EsperancaSolidaria.Contracts.
+      context: ..
+      dockerfile: UserService/UserService.WebApi/Dockerfile
+    image: userservice:local
+    container_name: esperanca-userservice
+    depends_on:
+      rabbitmq:
+        condition: service_healthy   # espera o broker ficar saudável antes de subir
+    env_file:
+      - .env                         # segredos (Jwt, Mongo, BootstrapGestor) — não versionado
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development   # liga o Swagger
+      RabbitMQ__Host: rabbitmq              # resolve o broker pelo nome do serviço na rede
+    ports:
+      - "8080:8080"                  # a imagem escuta em 8080 (ASPNETCORE_URLS)
+    restart: unless-stopped
+
+volumes:
+  rabbitmq_data:

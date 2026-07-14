@@ -7,12 +7,14 @@ on:
       - develop
     paths:
       - 'src/DonationService/**'
+      - 'src/Shared/**'
 
   push:
     branches:
       - develop
     paths:
       - 'src/DonationService/**'
+      - 'src/Shared/**'
 
 jobs:
   build-and-test:
@@ -63,7 +65,7 @@ jobs:
           docker build \
           -t donation-service:ci \
           -f DonationService.WebApi/Dockerfile \
-          .
+          ..
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
