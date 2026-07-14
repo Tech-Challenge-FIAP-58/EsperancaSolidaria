@@ -1,6 +1,7 @@
 ﻿using CampaignService.Domain.Entities;
 using CampaignService.Domain.Entities.DTOs;
 using CampaignService.Domain.Interfaces;
+using EsperancaSolidaria.Contracts.Entities.Web;
 
 namespace CampaignService.Application.Services
 {

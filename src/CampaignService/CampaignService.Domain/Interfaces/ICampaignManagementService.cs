@@ -1,5 +1,5 @@
-﻿using CampaignService.Domain.Entities;
-using CampaignService.Domain.Entities.DTOs;
+﻿using CampaignService.Domain.Entities.DTOs;
+using EsperancaSolidaria.Contracts.Entities.Web;
 
 namespace CampaignService.Domain.Interfaces
 {

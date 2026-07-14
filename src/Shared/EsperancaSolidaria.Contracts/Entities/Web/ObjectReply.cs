@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace CampaignService.Domain.Entities
+namespace EsperancaSolidaria.Contracts.Entities.Web
 {
     public class ObjectReply<T>(bool isSuccess, HttpStatusCode statusCode, T? value, string? message)
     {

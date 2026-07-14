@@ -1,4 +1,4 @@
-﻿using CampaignService.Domain.Entities;
+﻿using EsperancaSolidaria.Contracts.Entities.Web;
 using System.Net;
 
 namespace CampaignService.Application.Services
