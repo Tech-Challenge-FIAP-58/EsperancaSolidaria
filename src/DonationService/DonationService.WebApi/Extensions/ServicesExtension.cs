@@ -1,5 +1,6 @@
 ﻿using DonationService.Application.Producer;
 using DonationService.Domain.Interfaces.MassTransit.Producer;
+using DonationService.WebApi.Middleware;
 
 namespace DonationService.WebApi.Extensions
 {
@@ -9,6 +10,13 @@ namespace DonationService.WebApi.Extensions
 		{
 			// =================================== Add controllers =================================== //
 			builder.Services.AddControllers();
+
+			// =================================== Add exception handling =================================== //
+			builder.Services.AddProblemDetails();
+			builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+			// =================================== Add health checks =================================== //
+			builder.Services.AddHealthChecks();
 
 			// =================================== Add repositories =================================== //
 			builder.AddRepositories();
