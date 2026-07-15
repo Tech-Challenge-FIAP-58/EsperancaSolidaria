@@ -8,8 +8,11 @@ namespace DonationService.WebApi.Extensions
 	{
 		public static WebApplicationBuilder AddApiSettings(this WebApplicationBuilder builder)
 		{
-			builder.Services.Configure<RabbitMqSettings>(
-			   builder.Configuration.GetSection("RabbitMQ"));
+			builder.Services
+				.AddOptions<RabbitMqSettings>()
+				.BindConfiguration("RabbitMQ")
+				.ValidateDataAnnotations()
+				.ValidateOnStart();
 
 			RetrySettings.MaxRetryAttempts = builder.Configuration.GetValue<int>("MassTransit:RetrySettings:MaxRetryAttempts");
 			RetrySettings.DelayBetweenRetriesInSeconds = builder.Configuration.GetValue<int>("MassTransit:RetrySettings:DelayBetweenRetriesInSeconds");
