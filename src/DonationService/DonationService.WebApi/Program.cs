@@ -1,4 +1,6 @@
 using DonationService.WebApi.Extensions;
+using DonationService.WebApi.HealthChecks;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +14,9 @@ builder.AddServices();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -23,5 +28,24 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+    ResponseWriter = HealthCheckResponse.WriteAsync
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains(HealthCheckTags.Dependency),
+    ResponseWriter = HealthCheckResponse.WriteAsync
+});
+
+// Rota exigida pelo pdf de requisitos do projeto, mas não é usada pelo k8s.
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains(HealthCheckTags.Dependency),
+    ResponseWriter = HealthCheckResponse.WriteAsync
+});
 
 app.Run();
