@@ -6,9 +6,8 @@ namespace CampaignService.Infra.Repositories.Interfaces
     {
         Task<IEnumerable<TEntity>> GetAll();
         Task<TEntity?> GetById(Guid id);
-        void Add(TEntity entity);
-        void Update(TEntity entity);
-        void Delete(TEntity entity);
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task Add(TEntity entity);
+		Task Update(TEntity entity);
+		Task Delete(TEntity entity);
     }
 }

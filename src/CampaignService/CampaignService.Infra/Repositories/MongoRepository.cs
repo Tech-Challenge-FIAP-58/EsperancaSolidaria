@@ -8,34 +8,29 @@ namespace CampaignService.Infra.Repositories
 	{
 		protected readonly IMongoCollection<T> _collection = collection;
 
-		public void Add(T entity)
+		public async Task Add(T entity)
 		{
-			throw new NotImplementedException();
+			await _collection.InsertOneAsync(entity);
 		}
 
-		public void Delete(T entity)
+		public async Task Delete(T entity)
 		{
-			throw new NotImplementedException();
+			await _collection.DeleteOneAsync(e => e.Id == entity.Id);
 		}
 
-		public Task<IEnumerable<T>> GetAll()
+		public async Task<IEnumerable<T>> GetAll()
 		{
-			throw new NotImplementedException();
+			return await _collection.Find(_ => true).ToListAsync();
 		}
 
-		public Task<T?> GetById(Guid id)
+		public async Task<T?> GetById(Guid id)
 		{
-			throw new NotImplementedException();
+			return await _collection.Find(e => e.Id == id).FirstOrDefaultAsync();
 		}
 
-		public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+		public async Task Update(T entity)
 		{
-			throw new NotImplementedException();
-		}
-
-		public void Update(T entity)
-		{
-			throw new NotImplementedException();
+			await _collection.ReplaceOneAsync(e => e.Id == entity.Id, entity);
 		}
 	}
 }

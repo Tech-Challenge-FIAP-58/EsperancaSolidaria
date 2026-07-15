@@ -1,5 +1,7 @@
 ﻿using CampaignService.Application.Services;
 using CampaignService.Domain.Interfaces;
+using CampaignService.Infra.Repositories;
+using CampaignService.Infra.Repositories.Interfaces;
 
 namespace CampaignService.WebApi.Extensions
 {
@@ -25,6 +27,8 @@ namespace CampaignService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddRepositories(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
+
 			return builder;
 		}
 
