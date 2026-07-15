@@ -8,6 +8,10 @@ namespace CampaignService.Domain.Entities
 
         public void AddDonation(decimal amount)
         {
+            if (!_campaign.IsActive)
+            {
+                throw new InvalidOperationException("Não é possível adicionar uma doação a uma campanha inativa");
+			}
             if (amount <= 0)
             {
                 throw new ArgumentException("O valor da doação deve ser maior que zero");
