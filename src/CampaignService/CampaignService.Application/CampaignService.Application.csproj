@@ -8,11 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CampaignService.Infra\CampaignService.Infra.csproj" />
     <ProjectReference Include="..\CampaignService.Domain\CampaignService.Domain.csproj" />
+    <ProjectReference Include="..\CampaignService.Infra\CampaignService.Infra.csproj" />
     <ProjectReference Include="..\..\Shared\EsperancaSolidaria.Contracts\EsperancaSolidaria.Contracts.csproj" />
   </ItemGroup>
 

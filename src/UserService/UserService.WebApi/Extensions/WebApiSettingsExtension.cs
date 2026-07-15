@@ -4,7 +4,7 @@ using UserService.Application.Consumers;
 using UserService.Infra.Configurations;
 using UserService.Infra.Mongo.Bootstrap;
 using UserService.Infra.Mongo.Collections;
-using UserService.WebApi.Setings;
+using UserService.WebApi.Settings;
 
 namespace UserService.WebApi.Extensions
 {
