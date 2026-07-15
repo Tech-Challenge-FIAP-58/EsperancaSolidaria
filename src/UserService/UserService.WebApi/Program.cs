@@ -18,6 +18,7 @@ var app = builder.Build();
 using var scope =
     app.Services.CreateScope();
 
+// =================================== Initialize Mongo DB =================================== //
 var bootstrap =
     scope.ServiceProvider
         .GetRequiredService<MongoBootstrap>();

@@ -1,4 +1,4 @@
-﻿namespace UserService.WebApi.Setings
+﻿namespace UserService.WebApi.Settings
 {
 	public class RabbitMqSettings
 	{

@@ -1,3 +1,4 @@
+using CampaignService.Infra.Mongo.Bootstrap;
 using CampaignService.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,16 @@ builder.AddServices();
 
 // =================================== Add app config =================================== //
 var app = builder.Build();
+
+using var scope =
+    app.Services.CreateScope();
+
+// =================================== Initialize Mongo DB =================================== //
+var bootstrap =
+    scope.ServiceProvider
+        .GetRequiredService<MongoBootstrap>();
+
+await bootstrap.InitializeAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
