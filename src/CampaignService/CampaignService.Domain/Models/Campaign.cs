@@ -1,4 +1,6 @@
-﻿namespace CampaignService.Domain.Models
+﻿using EsperancaSolidaria.Contracts.Entities;
+
+namespace CampaignService.Domain.Models
 {
     public class Campaign : ModelBase
     {
