@@ -1,4 +1,6 @@
+using CampaignService.WebApi.Metrics;
 using DonationService.WebApi.Extensions;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,9 +20,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.Use(async (context, next) =>
+{
+    AppMetrics.TotalRequests.Inc();
+    await next();
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseHttpMetrics();
+
+app.MapMetrics();
 
 app.MapControllers();
 

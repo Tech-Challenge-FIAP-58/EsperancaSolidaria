@@ -30,8 +30,8 @@ spec:
 
       containers:
         - name: user-api
-          image: ghcr.io/tech-challenge-fiap-58/user-service:main
-          imagePullPolicy: Always
+          image: campaign-service:main
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
 
