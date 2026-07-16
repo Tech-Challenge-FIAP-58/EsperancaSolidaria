@@ -8,7 +8,7 @@ using EsperancaSolidaria.Contracts.Services;
 
 namespace CampaignService.Application.Services
 {
-    public class CampaignManagementService(ICampaignRepository repository) : BaseService, ICampaignManagementService
+    public class CampaignManagementService(ICampaignRepository repository, ICampaignLogRepository logRepository) : BaseService, ICampaignManagementService
     {
         public  async Task<IApiResponse<bool>> CancelCampaign(Guid id)
         {
@@ -29,8 +29,9 @@ namespace CampaignService.Application.Services
 			}
 
 			await repository.UpdateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Campanha cancelada em {DateTime.Now}.");
 
-            return Ok(true, message: $"Campanha #{campaign.Id} cancelada com sucesso.");
+			return Ok(true, message: $"Campanha #{campaign.Id} cancelada com sucesso.");
 		}
 
         public async Task<IApiResponse<bool>> Create(CreateCampaignDto dto)
@@ -50,8 +51,9 @@ namespace CampaignService.Application.Services
 			}
             
             await repository.CreateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Campanha criada em {DateTime.Now}.");
 
-            return Created(true, message: $"Campanha #{campaign.Id} criada com sucesso.");
+			return Created(true, message: $"Campanha #{campaign.Id} criada com sucesso.");
         }
 
 		public async Task<IApiResponse<List<Campaign>>> GetAll()
@@ -92,6 +94,7 @@ namespace CampaignService.Application.Services
 			}
 
 			await repository.UpdateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Campanha atualizada em {DateTime.Now}.");
 
 			return Ok(true, message: $"Campanha #{campaign.Id} atualizada com sucesso.");
 		}
@@ -115,6 +118,7 @@ namespace CampaignService.Application.Services
 			}
 
 			await repository.UpdateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Doação de {dto.Amount:C} adicionada à campanha em {DateTime.Now}.");
 
 			return Ok(true, message: $"Doação de {dto.Amount:C} adicionada à campanha #{campaign.Id} com sucesso.");
 		}

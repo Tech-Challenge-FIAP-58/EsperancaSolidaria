@@ -19,6 +19,12 @@ namespace CampaignService.Infra.Mongo.Collections
                 await _database.CreateCollectionAsync(
                     CollectionsNames.Campaigns);
             }
-        }
+
+            if (!collections.Contains(CollectionsNames.CampaignLogs))
+			{
+				await _database.CreateCollectionAsync(
+					CollectionsNames.CampaignLogs);
+			}
+		}
     }
 }

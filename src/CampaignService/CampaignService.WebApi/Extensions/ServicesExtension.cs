@@ -27,6 +27,7 @@ namespace CampaignService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddRepositories(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<ICampaignLogRepository, CampaignLogRepository>();
 			builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
 
 			return builder;
