@@ -23,15 +23,15 @@ spec:
             - |
               echo "Aguardando RabbitMQ..."
               until nc -z rabbitmq 5672; do
-                echo "RabbitMQ ainda n„o disponÌvel..."
+                echo "RabbitMQ ainda n√£o dispon√≠vel..."
                 sleep 5
               done
-              echo "RabbitMQ disponÌvel!"
+              echo "RabbitMQ dispon√≠vel!"
 
       containers:
         - name: user-api
-          image: campaign-service:main
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/tech-challenge-fiap-58/user-service:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
 
