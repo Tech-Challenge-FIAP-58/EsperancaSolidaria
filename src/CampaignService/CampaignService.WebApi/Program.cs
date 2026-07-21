@@ -1,7 +1,9 @@
 using CampaignService.Infra.Mongo.Bootstrap;
 using CampaignService.WebApi.Extensions;
 using CampaignService.WebApi.Metrics;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Prometheus;
+using UserService.WebApi.HealthChecks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,5 +48,25 @@ app.UseHttpMetrics();
 app.MapMetrics();
 
 app.MapControllers();
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false,
+    ResponseWriter = HealthCheckResponse.WriteAsync
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains(HealthCheckTags.Dependency),
+    ResponseWriter = HealthCheckResponse.WriteAsync
+});
+
+// Rota exigida pelo pdf de requisitos do projeto, mas não é usada pelo k8s.
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains(HealthCheckTags.Dependency),
+    ResponseWriter = HealthCheckResponse.WriteAsync
+});
+
 
 app.Run();

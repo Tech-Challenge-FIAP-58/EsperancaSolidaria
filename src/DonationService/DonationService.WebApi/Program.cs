@@ -2,6 +2,7 @@ using CampaignService.WebApi.Metrics;
 using DonationService.WebApi.Extensions;
 using DonationService.WebApi.HealthChecks;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
