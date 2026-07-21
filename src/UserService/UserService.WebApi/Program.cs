@@ -1,3 +1,5 @@
+using Prometheus;
+using CampaignService.WebApi.Metrics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using UserService.Infra.Mongo.Bootstrap;
 using UserService.Infra.Seed;
@@ -38,11 +40,21 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.Use(async (context, next) =>
+{
+    AppMetrics.TotalRequests.Inc();
+    await next();
+});
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseHttpMetrics();
+
+app.MapMetrics();
 
 app.MapControllers();
 
