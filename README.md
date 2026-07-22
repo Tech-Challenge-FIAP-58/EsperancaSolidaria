@@ -34,8 +34,6 @@ Monorepo com microsserviços em .NET, comunicação assíncrona via mensageria e
 | **CampaignService** | CRUD de campanhas (criar, editar, cancelar) e consumidor do evento de doação para atualizar o valor arrecadado. |
 | **Contracts** | DTOs e eventos compartilhados, fonte única de verdade para o roteamento no MassTransit. |
 
-`[AJUSTAR]` — inserir aqui a imagem/link do diagrama de arquitetura entregável (mostrando microsserviços, bancos, broker e observabilidade), conforme exigido pelo enunciado.
-
 ---
 
 ## Funcionalidades
@@ -222,8 +220,6 @@ Executa os testes unitários (xUnit + Moq) presentes no `UserService` e no `Camp
   - HTTP Total Requests
   - Memory Usage
 
-  `[AJUSTAR]` — inserir aqui prints dos dashboards (um por serviço ou um consolidado) e, se possível, o link de acesso ao Grafana.
-
 ---
 
 ## CI/CD
@@ -292,8 +288,6 @@ Pipelines via GitHub Actions, um par de CI/CD por serviço, em `.github/workflow
 | `PUT` | `/Campaign/{id}/cancel` | Cancela campanha |
 | `POST` | `/Campaign/donation` | Registra intenção de doação |
 
-`[AJUSTAR]` — confirmar as restrições de role (`GestorONG` vs público vs `Doador`) em cada rota do `CampaignController`; os atributos `[Authorize(Roles=...)]` não estavam visíveis no trecho analisado.
-
 ---
 
 ## Contrato de mensageria
@@ -307,14 +301,6 @@ Pipelines via GitHub Actions, um par de CI/CD por serviço, em `.github/workflow
 | `CampaignId` | Identificador da campanha |
 | `Amount` | Valor doado |
 | `OccurredAt` | Data/hora do evento |
-
----
-
-## Documentação adicional
-
-- Detalhes do `UserService` (autenticação, consumidor idempotente, seed inicial): `src/UserService/README.md`
-- DI e configuração do MassTransit: pasta `Extensions` e `appsettings.example.json` de cada WebApi.
-- `[AJUSTAR]` Documento PDF justificando a escolha dos bancos de dados (entregável separado).
 
 ---
 
