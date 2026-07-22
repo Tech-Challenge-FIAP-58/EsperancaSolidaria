@@ -48,6 +48,7 @@ namespace DonationService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddUseCases(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<IDonationReceivedEventProducer, DonationReceivedEventProducer>();
 			builder.Services.AddScoped<ICampaignDonationServiceDonationService, CampaignDonationService>();
 
 			return builder;
