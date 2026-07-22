@@ -1,5 +1,5 @@
-﻿using CampaignService.Domain.Models;
-using CampaignService.Infra.Repositories.Interfaces;
+﻿using CampaignService.Infra.Repositories.Interfaces;
+using EsperancaSolidaria.Contracts.Entities;
 using MongoDB.Driver;
 
 namespace CampaignService.Infra.Repositories

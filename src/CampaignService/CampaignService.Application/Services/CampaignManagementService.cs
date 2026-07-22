@@ -1,14 +1,18 @@
 ﻿using CampaignService.Domain.Entities;
 using CampaignService.Domain.Entities.DTOs;
 using CampaignService.Domain.Interfaces;
+using CampaignService.Domain.Interfaces.MassTransit.Producer;
 using CampaignService.Domain.Models;
 using CampaignService.Infra.Repositories.Interfaces;
 using EsperancaSolidaria.Contracts.Entities.Web;
+using EsperancaSolidaria.Contracts.Events;
 using EsperancaSolidaria.Contracts.Services;
 
 namespace CampaignService.Application.Services
 {
-    public class CampaignManagementService(ICampaignRepository repository) : BaseService, ICampaignManagementService
+    public class CampaignManagementService(
+		ICampaignRepository repository, ICampaignLogRepository logRepository, 
+		IDonationRejectedEventProducer donationRejectedEventProducer) : BaseService, ICampaignManagementService
     {
         public  async Task<IApiResponse<bool>> CancelCampaign(Guid id)
         {
@@ -29,8 +33,9 @@ namespace CampaignService.Application.Services
 			}
 
 			await repository.UpdateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Campanha cancelada em {DateTime.Now}.");
 
-            return Ok(true, message: $"Campanha #{campaign.Id} cancelada com sucesso.");
+			return Ok(true, message: $"Campanha #{campaign.Id} cancelada com sucesso.");
 		}
 
         public async Task<IApiResponse<bool>> Create(CreateCampaignDto dto)
@@ -50,8 +55,9 @@ namespace CampaignService.Application.Services
 			}
             
             await repository.CreateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Campanha criada em {DateTime.Now}.");
 
-            return Created(true, message: $"Campanha #{campaign.Id} criada com sucesso.");
+			return Created(true, message: $"Campanha #{campaign.Id} criada com sucesso.");
         }
 
 		public async Task<IApiResponse<List<Campaign>>> GetAll()
@@ -92,16 +98,23 @@ namespace CampaignService.Application.Services
 			}
 
 			await repository.UpdateCampaign(campaign);
+			await logRepository.WriteLog(campaign.Id, $"Campanha atualizada em {DateTime.Now}.");
 
 			return Ok(true, message: $"Campanha #{campaign.Id} atualizada com sucesso.");
 		}
 
-		public async Task<IApiResponse<bool>> AddDonation(AddDonationDto dto)
+		public async Task AddDonation(AddDonationDto dto)
 		{
-			var campaign = await repository.GetCampaignById(dto.Id);
+			var campaign = await repository.GetCampaignById(dto.CampaignId);
 			if (campaign == null)
 			{
-				return NotFound<bool>("Campanha não encontrada.");
+				await donationRejectedEventProducer.Publish(new DonationRejectedEvent
+				{
+					CampaignId = dto.CampaignId,
+					DonationId = dto.DonationId,
+					Message = "CampaignService: Campanha não encontrada"
+				});
+				return;
 			}
 
 			try
@@ -111,12 +124,17 @@ namespace CampaignService.Application.Services
 			}
 			catch (Exception ex)
 			{
-				return BadRequest<bool>(ex.Message);
+				await donationRejectedEventProducer.Publish(new DonationRejectedEvent
+				{
+					CampaignId = dto.CampaignId,
+					DonationId = dto.DonationId,
+					Message = $"CampaignService (BadRequest): {ex.Message}"
+				});
+				return;
 			}
 
 			await repository.UpdateCampaign(campaign);
-
-			return Ok(true, message: $"Doação de {dto.Amount:C} adicionada à campanha #{campaign.Id} com sucesso.");
+			await logRepository.WriteLog(campaign.Id, $"Doação de {dto.Amount:C} adicionada à campanha em {DateTime.Now}.");
 		}
     }
 }

@@ -52,15 +52,5 @@ namespace CampaignService.WebApi.Controllers
 			logger.LogInformation("Cancel campaign with id: {id}", id);
 			return await ExecuteAsync(() => service.CancelCampaign(id));
 		}
-
-		[HttpPost("donation")]
-		[ProducesResponseType(StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-		public async Task<IActionResult> AddDonation(AddDonationDto dto)
-		{
-			logger.LogInformation("Add donation to campaign with id: {id}", dto.Id);
-			return await ExecuteAsync(() => service.AddDonation(dto));
-		}
 	}
 }

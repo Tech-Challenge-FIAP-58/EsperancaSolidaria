@@ -1,5 +1,9 @@
 ﻿using DonationService.Application.Producer;
+using DonationService.Application.Services;
+using DonationService.Domain.Interfaces;
 using DonationService.Domain.Interfaces.MassTransit.Producer;
+using DonationService.Infra;
+using DonationService.Infra.Repositories.Interfaces;
 using DonationService.WebApi.Middleware;
 
 namespace DonationService.WebApi.Extensions
@@ -21,11 +25,11 @@ namespace DonationService.WebApi.Extensions
 			// =================================== Add repositories =================================== //
 			builder.AddRepositories();
 
-			// =================================== Add useCases =================================== //
-			builder.AddUseCases();
-
 			// =================================== Add event producers =================================== //
 			builder.Services.AddScoped<IDonationReceivedEventProducer, DonationReceivedEventProducer>();
+
+			// =================================== Add useCases =================================== //
+			builder.AddUseCases();
 
 			// =================================== Add swagger =================================== //
 			builder.Services.AddEndpointsApiExplorer();
@@ -36,11 +40,16 @@ namespace DonationService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddRepositories(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<IDonationLogRepository, DonationLogRepository>();
+			builder.Services.AddScoped<IDonationRepository, DonationRepository>();
+
 			return builder;
 		}
 
 		private static WebApplicationBuilder AddUseCases(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<ICampaignDonationServiceDonationService, CampaignDonationService>();
+
 			return builder;
 		}
 	}

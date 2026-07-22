@@ -1,9 +1,9 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
 
-namespace CampaignService.Domain.Models
+namespace EsperancaSolidaria.Contracts.Entities
 {
-    public class ModelBase
-    {
+	public class ModelBase
+	{
 		[BsonId]
 		public Guid Id { get; set; }
 		public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.Now;

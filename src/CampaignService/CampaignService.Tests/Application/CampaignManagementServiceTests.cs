@@ -1,14 +1,12 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 using Moq;
 using CampaignService.Application.Services;
-using CampaignService.Domain.Interfaces;
 using CampaignService.Domain.Entities.DTOs;
 using CampaignService.Domain.Models;
 using CampaignService.Infra.Repositories.Interfaces;
-using EsperancaSolidaria.Contracts.Entities.Web;
+using CampaignService.Domain.Interfaces.MassTransit.Producer;
 
 namespace CampaignService.Tests.Application
 {
@@ -18,7 +16,10 @@ namespace CampaignService.Tests.Application
 		public async Task Create_ShouldReturnCreatedAndCallRepository()
 		{
 			var repoMock = new Mock<ICampaignRepository>();
-			var service = new CampaignManagementService(repoMock.Object);
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
+
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
 
 			var dto = new CreateCampaignDto("t","d", DateTime.Now, DateTime.Now.AddDays(5), 100m);
 			var response = await service.Create(dto);
@@ -33,7 +34,11 @@ namespace CampaignService.Tests.Application
 		{
 			var repoMock = new Mock<ICampaignRepository>();
 			repoMock.Setup(r => r.GetCampaignById(It.IsAny<Guid>())).ReturnsAsync((Campaign?)null);
-			var service = new CampaignManagementService(repoMock.Object);
+
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
+
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
 
 			var response = await service.GetById(Guid.NewGuid());
 
@@ -46,25 +51,29 @@ namespace CampaignService.Tests.Application
 		{
 			var repoMock = new Mock<ICampaignRepository>();
 			repoMock.Setup(r => r.GetCampaignById(It.IsAny<Guid>())).ReturnsAsync((Campaign?)null);
-			var service = new CampaignManagementService(repoMock.Object);
 
-			var response = await service.AddDonation(new AddDonationDto(Guid.NewGuid(), 10m));
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
 
-			Assert.False(response.IsSuccess);
-			Assert.Equal(System.Net.HttpStatusCode.NotFound, response.StatusCode);
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
+			await service.AddDonation(new AddDonationDto(Guid.NewGuid(), Guid.NewGuid(), 10m));
 		}
 
 		[Fact]
 		public async Task AddDonation_Valid_ShouldUpdateRepository()
 		{
 			var campaign = new Campaign("a","b", DateTime.Now, DateTime.Now.AddDays(5), 100m);
+			var donationId = Guid.NewGuid();
+
 			var repoMock = new Mock<ICampaignRepository>();
 			repoMock.Setup(r => r.GetCampaignById(It.IsAny<Guid>())).ReturnsAsync(campaign);
-			var service = new CampaignManagementService(repoMock.Object);
 
-			var response = await service.AddDonation(new AddDonationDto(campaign.Id, 25m));
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
 
-			Assert.True(response.IsSuccess);
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
+			await service.AddDonation(new AddDonationDto(campaign.Id, donationId, 25m));
+
 			repoMock.Verify(r => r.UpdateCampaign(It.Is<Campaign>(c => c.CollectedAmount == 25m)), Times.Once);
 		}
 
@@ -73,7 +82,11 @@ namespace CampaignService.Tests.Application
 		{
 			var repoMock = new Mock<ICampaignRepository>();
 			repoMock.Setup(r => r.GetCampaignById(It.IsAny<Guid>())).ReturnsAsync((Campaign?)null);
-			var service = new CampaignManagementService(repoMock.Object);
+
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
+
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
 
 			var response = await service.CancelCampaign(Guid.NewGuid());
 
@@ -87,7 +100,11 @@ namespace CampaignService.Tests.Application
 			var campaign = new Campaign("a","b", DateTime.Now, DateTime.Now.AddDays(5), 100m);
 			var repoMock = new Mock<ICampaignRepository>();
 			repoMock.Setup(r => r.GetCampaignById(It.IsAny<Guid>())).ReturnsAsync(campaign);
-			var service = new CampaignManagementService(repoMock.Object);
+
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
+
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
 
 			var response = await service.CancelCampaign(campaign.Id);
 
@@ -102,7 +119,11 @@ namespace CampaignService.Tests.Application
 			var campaign = new Campaign("a","b", DateTime.Now, DateTime.Now.AddDays(5), 100m);
 			var repoMock = new Mock<ICampaignRepository>();
 			repoMock.Setup(r => r.GetCampaignById(It.IsAny<Guid>())).ReturnsAsync(campaign);
-			var service = new CampaignManagementService(repoMock.Object);
+
+			var logMock = new Mock<ICampaignLogRepository>();
+			var producerMock = new Mock<IDonationRejectedEventProducer>();
+
+			var service = new CampaignManagementService(repoMock.Object, logMock.Object, producerMock.Object);
 
 			var dto = new UpdateCampaignDto(campaign.Id, "t", "d", DateTime.Now, DateTime.Now.AddDays(-1), 100m);
 			var response = await service.Update(dto);
