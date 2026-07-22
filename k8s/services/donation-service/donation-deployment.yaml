@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: donation-deployment
@@ -7,7 +7,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: donation-service
+      app: donation-api
   template:
     metadata:
       labels:
@@ -23,21 +23,21 @@ spec:
             - |
               echo "Aguardando RabbitMQ..."
               until nc -z rabbitmq 5672; do
-                echo "RabbitMQ ainda n„o disponÌvel..."
+                echo "RabbitMQ ainda n√£o dispon√≠vel..."
                 sleep 5
               done
-              echo "RabbitMQ disponÌvel!"
+              echo "RabbitMQ dispon√≠vel!"
 
       containers:
         - name: donation-api
-          image: ghcr.io/tech-challenge-fiap-58/donation-service:main
+          image: ghcr.io/tech-challenge-fiap-58/donation-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
 
           envFrom:
             - configMapRef:
-                name: donation-api-config
+                name: donation-config
             - configMapRef:
                 name: services-config
 

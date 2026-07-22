@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: servies-config
+  name: services-config
   namespace: services
 data:
   ASPNETCORE_ENVIRONMENT: "Development"

@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-deployment
@@ -7,7 +7,7 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: user-service
+      app: user-api
   template:
     metadata:
       labels:
@@ -23,21 +23,21 @@ spec:
             - |
               echo "Aguardando RabbitMQ..."
               until nc -z rabbitmq 5672; do
-                echo "RabbitMQ ainda n„o disponÌvel..."
+                echo "RabbitMQ ainda n√£o dispon√≠vel..."
                 sleep 5
               done
-              echo "RabbitMQ disponÌvel!"
+              echo "RabbitMQ dispon√≠vel!"
 
       containers:
         - name: user-api
-          image: ghcr.io/tech-challenge-fiap-58/user-service:main
+          image: ghcr.io/tech-challenge-fiap-58/user-service:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
 
           envFrom:
             - configMapRef:
-                name: user-api-config
+                name: user-config
             - configMapRef:
                 name: services-config
 
@@ -101,7 +101,11 @@ spec:
                 secretKeyRef:
                   name: user-api-secrets
                   key: bootstrapAdminPassword
-
+            - name: Mongo__ConnectionString
+              valueFrom:
+               secretKeyRef:
+                  name: services-secrets
+                  key: connectionString
           readinessProbe:
             httpGet:
               path: /health
