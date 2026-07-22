@@ -22,6 +22,7 @@ namespace DonationService.WebApi.Extensions
 			RetrySettings.DelayBetweenRetriesInSeconds = builder.Configuration.GetValue<int>("MassTransit:RetrySettings:DelayBetweenRetriesInSeconds");
 
 			builder.AddMassTransitSettings();
+			builder.AddDatabaseSettings();
 
 			return builder;
 		}

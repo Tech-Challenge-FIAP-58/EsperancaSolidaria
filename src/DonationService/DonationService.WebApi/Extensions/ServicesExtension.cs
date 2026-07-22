@@ -25,11 +25,11 @@ namespace DonationService.WebApi.Extensions
 			// =================================== Add repositories =================================== //
 			builder.AddRepositories();
 
-			// =================================== Add useCases =================================== //
-			builder.AddUseCases();
-
 			// =================================== Add event producers =================================== //
 			builder.Services.AddScoped<IDonationReceivedEventProducer, DonationReceivedEventProducer>();
+
+			// =================================== Add useCases =================================== //
+			builder.AddUseCases();
 
 			// =================================== Add swagger =================================== //
 			builder.Services.AddEndpointsApiExplorer();
@@ -48,7 +48,6 @@ namespace DonationService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddUseCases(this WebApplicationBuilder builder)
 		{
-			builder.Services.AddScoped<IDonationReceivedEventProducer, DonationReceivedEventProducer>();
 			builder.Services.AddScoped<ICampaignDonationServiceDonationService, CampaignDonationService>();
 
 			return builder;
