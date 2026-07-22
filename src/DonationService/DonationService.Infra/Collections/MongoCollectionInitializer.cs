@@ -19,6 +19,12 @@ namespace DonationService.Infra.Collections
 				await _database.CreateCollectionAsync(
 					CollectionsNames.DonationLogs);
 			}
+
+			if (!collections.Contains(CollectionsNames.Donation))
+			{
+				await _database.CreateCollectionAsync(
+					CollectionsNames.Donation);
+			}
 		}
 	}
 }

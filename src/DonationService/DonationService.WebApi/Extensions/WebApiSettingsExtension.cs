@@ -1,4 +1,7 @@
-﻿using DonationService.Application.Consumers;
+﻿using DonationService.Infra.Bootstrap;
+using DonationService.Infra.Collections;
+using DonationService.Infra.Configurations;
+using DonationService.Infra.Indexes;
 using DonationService.WebApi.Settings;
 using MassTransit;
 using Microsoft.Extensions.Options;
@@ -23,15 +26,30 @@ namespace DonationService.WebApi.Extensions
 			return builder;
 		}
 
+		private static WebApplicationBuilder AddDatabaseSettings(this WebApplicationBuilder builder)
+		{
+			builder.Services
+				.AddOptions<MongoConfig>()
+				.BindConfiguration("Mongo")
+				.ValidateDataAnnotations()
+				.ValidateOnStart();
+			builder.AddMongo();
+
+			builder.Services.AddSingleton<MongoCollections>();
+			builder.Services.AddSingleton<MongoCollectionInitializer>();
+			builder.Services.AddSingleton<DonationIndexes>();
+			builder.Services.AddSingleton<MongoBootstrap>();
+
+			return builder;
+		}
+
 		private static WebApplicationBuilder AddMassTransitSettings(this WebApplicationBuilder builder)
 		{
 			builder.Services.AddMassTransit(x =>
 			{
 				// Prefixo por serviço: garante uma fila própria (campaign-donation-received-event),
 				// distinta da do UserService, para que o Publish faça fan-out para ambos.
-				x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("campaign", false));
-
-				x.AddConsumer<DonationReceivedEventConsumer>();
+				x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("donation", false));
 
 				x.UsingRabbitMq((context, cfg) =>
 				{
