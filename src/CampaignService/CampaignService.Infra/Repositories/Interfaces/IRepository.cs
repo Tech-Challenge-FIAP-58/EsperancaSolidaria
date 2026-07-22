@@ -1,4 +1,4 @@
-﻿using CampaignService.Domain.Models;
+﻿using EsperancaSolidaria.Contracts.Entities;
 
 namespace CampaignService.Infra.Repositories.Interfaces
 {

@@ -9,5 +9,9 @@ namespace CampaignService.Infra.Mongo.Collections
         public IMongoCollection<Campaign> Campaigns { get; } =
                 database.GetCollection<Campaign>(
                     CollectionsNames.Campaigns);
-    }
+
+        public IMongoCollection<CampaignLog> CampaignLogs { get; } =
+				database.GetCollection<CampaignLog>(
+					CollectionsNames.CampaignLogs);
+	}
 }

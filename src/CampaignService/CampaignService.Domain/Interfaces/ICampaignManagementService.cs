@@ -11,6 +11,6 @@ namespace CampaignService.Domain.Interfaces
         Task<IApiResponse<bool>> Create(CreateCampaignDto dto);
         Task<IApiResponse<bool>> Update(UpdateCampaignDto dto);
         Task<IApiResponse<bool>> CancelCampaign(Guid id);
-        Task<IApiResponse<bool>> AddDonation(AddDonationDto dto);
+        Task AddDonation(AddDonationDto dto);
 	}
 }

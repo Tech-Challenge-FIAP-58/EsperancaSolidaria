@@ -1,5 +1,7 @@
-﻿using CampaignService.Application.Services;
+﻿using CampaignService.Application.Producer;
+using CampaignService.Application.Services;
 using CampaignService.Domain.Interfaces;
+using CampaignService.Domain.Interfaces.MassTransit.Producer;
 using CampaignService.Infra.Repositories;
 using CampaignService.Infra.Repositories.Interfaces;
 
@@ -15,6 +17,9 @@ namespace CampaignService.WebApi.Extensions
 			// =================================== Add repositories =================================== //
 			builder.AddRepositories();
 
+			// =================================== Add event producers =================================== //
+			builder.Services.AddScoped<IDonationRejectedEventProducer, DonationRejectedEventProducer>();
+
 			// =================================== Add useCases =================================== //
 			builder.AddUseCases();
 
@@ -27,6 +32,7 @@ namespace CampaignService.WebApi.Extensions
 
 		private static WebApplicationBuilder AddRepositories(this WebApplicationBuilder builder)
 		{
+			builder.Services.AddScoped<ICampaignLogRepository, CampaignLogRepository>();
 			builder.Services.AddScoped<ICampaignRepository, CampaignRepository>();
 
 			return builder;
