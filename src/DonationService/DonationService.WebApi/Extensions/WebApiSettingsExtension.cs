@@ -1,4 +1,5 @@
-﻿using DonationService.Infra.Bootstrap;
+﻿using DonationService.Application.Consumers;
+using DonationService.Infra.Bootstrap;
 using DonationService.Infra.Collections;
 using DonationService.Infra.Configurations;
 using DonationService.Infra.Indexes;
@@ -51,6 +52,8 @@ namespace DonationService.WebApi.Extensions
 				// Prefixo por serviço: garante uma fila própria (campaign-donation-received-event),
 				// distinta da do UserService, para que o Publish faça fan-out para ambos.
 				x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("donation", false));
+
+				x.AddConsumer<DonationRejectedEventConsumer>();
 
 				x.UsingRabbitMq((context, cfg) =>
 				{

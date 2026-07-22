@@ -7,7 +7,7 @@ namespace DonationService.Infra.Collections
 		IMongoDatabase database)
 	{
 		public IMongoCollection<Donation> Donation { get; } =
-			database.GetCollection<Donation>("donation");
+			database.GetCollection<Donation>("donations");
 
 		public IMongoCollection<DonationLog> DonationLogs { get; } = 
 			database.GetCollection<DonationLog>("donation_logs");

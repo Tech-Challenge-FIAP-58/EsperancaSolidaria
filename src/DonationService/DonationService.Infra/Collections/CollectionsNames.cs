@@ -2,7 +2,7 @@
 {
 	public static class CollectionsNames
 	{
-		public static string Donation => "donation";
+		public static string Donation => "donations";
 		public static string DonationLogs => "donation_logs";
 	}
 }

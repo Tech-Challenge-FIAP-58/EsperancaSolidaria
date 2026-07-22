@@ -10,7 +10,9 @@ using EsperancaSolidaria.Contracts.Services;
 
 namespace DonationService.Application.Services
 {
-	public class CampaignDonationService(IDonationReceivedEventProducer donationReceivedEventProducer, IDonationRepository donationRepository, IDonationLogRepository donationLogRepository) : BaseService, ICampaignDonationServiceDonationService
+	public class CampaignDonationService(
+		IDonationReceivedEventProducer donationReceivedEventProducer, IDonationRepository donationRepository, 
+		IDonationLogRepository donationLogRepository) : BaseService, ICampaignDonationServiceDonationService
 	{
 		public async Task<IApiResponse<bool>> CreateDonation(CreateDonationDto dto)
 		{
@@ -36,9 +38,9 @@ namespace DonationService.Application.Services
 			await donationRepository.CreateDonation(donation);
 
 			await donationLogRepository.
-				WriteLog(dto.CampaignId, $"Donation published: DonorUserId={dto.DonorUserId}, Amount={dto.Amount}");
+				WriteLog(donation.Id, dto.CampaignId, $"Doação publicada: DonorUserId={dto.DonorUserId}, Amount={dto.Amount}");
 
-			return Created<bool>(true, "Donation created successfully.");
+			return Created(true, "Doação criada com sucesso.");
 		}
 
 		public async Task<IApiResponse<List<Donation>>> GetDonationsByCampaignId(Guid campaignId)
@@ -46,10 +48,18 @@ namespace DonationService.Application.Services
 			var donations = await donationRepository.GetDonations(campaignId);
 			if (donations == null || !donations.Any())
 			{
-				return NotFound<List<Donation>>($"No donations found for campaign with ID {campaignId}.");
+				return NotFound<List<Donation>>($"Nenhuma doação encontrada para a campanha {campaignId}");
 			}
 
-			return Ok<List<Donation>>(donations.ToList());
+			return Ok(donations.ToList());
+		}
+
+		public async Task<IApiResponse<bool>> RejectDonation(DonationRejectedDto dto)
+		{
+			await donationRepository.DeactivateDonation(dto.DonationId);
+			await donationLogRepository.WriteLog(dto.DonationId, dto.CampaignId, $"Doação cancelada/rejeitada: {dto.Message}");
+
+			return Ok(true);
 		}
 	}
 }

@@ -8,5 +8,6 @@ namespace DonationService.Domain.Interfaces
 	{
 		Task<IApiResponse<bool>> CreateDonation(CreateDonationDto dto);
 		Task<IApiResponse<List<Donation>>> GetDonationsByCampaignId(Guid campaignId);
+		Task<IApiResponse<bool>> RejectDonation(DonationRejectedDto dto);
 	}
 }

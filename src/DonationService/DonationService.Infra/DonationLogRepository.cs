@@ -6,9 +6,9 @@ namespace DonationService.Infra
 {
 	public class DonationLogRepository(MongoCollections collections) : MongoRepository<DonationLog>(collections.DonationLogs), IDonationLogRepository
 	{
-		public async Task WriteLog(Guid campaignId, string message)
+		public async Task WriteLog(Guid donationId, Guid campaignId, string message)
 		{
-			await Add(new DonationLog(campaignId, message));
+			await Add(new DonationLog(donationId, campaignId, message));
 		}
 	}
 }

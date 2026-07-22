@@ -6,5 +6,6 @@ namespace DonationService.Infra.Repositories.Interfaces
 	{
 		Task<IEnumerable<Donation>> GetDonations(Guid campaignId);
 		Task CreateDonation(Donation donation);
+		Task DeactivateDonation(Guid donationId);
 	}
 }

@@ -2,6 +2,6 @@
 {
 	public interface IDonationLogRepository
 	{
-		Task WriteLog(Guid campaignId, string message);
+		Task WriteLog(Guid donationId, Guid campaignId, string message);
 	}
 }

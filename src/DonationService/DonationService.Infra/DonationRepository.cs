@@ -16,5 +16,15 @@ namespace DonationService.Infra
 			var donations = await GetAll();
 			return donations.ToList().FindAll(d => d.CampaignId == campaignId);
 		}
+
+		public async Task DeactivateDonation(Guid donationId)
+		{
+			var donation = await GetById(donationId) 
+				?? throw new NullReferenceException("Doação não encontrada");
+
+			donation.IsActive = false;
+
+			await Update(donation);
+		}
 	}
 }

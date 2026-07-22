@@ -7,6 +7,7 @@ namespace DonationService.Domain.Models
 		public Guid DonorUserId { get; set; }
 		public Guid CampaignId { get; set; }
 		public decimal Amount { get; set; }
+		public bool IsActive { get; set; }
 
 		public Donation(Guid donorUserId, Guid campaignId, decimal amount)
 		{
@@ -14,6 +15,7 @@ namespace DonationService.Domain.Models
 			DonorUserId = donorUserId;
 			CampaignId = campaignId;
 			Amount = amount;
+			IsActive = true;
 		}
 	}
 }
