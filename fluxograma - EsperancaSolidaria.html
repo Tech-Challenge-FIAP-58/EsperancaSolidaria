@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Arquitetura Esperança Solidária</title>
+
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      securityLevel: 'loose',
+      flowchart: { useMaxWidth: true, htmlLabels: true }
+    });
+  </script>
+
+  <style>
+    :root{
+      --bg:#f4f6fb;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --shadow:0 10px 28px rgba(15,23,42,.12);
+      --border:1px solid rgba(148,163,184,.25);
+      --radius:16px;
+    }
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      margin:0;
+      padding:32px 18px 40px;
+      background:
+        radial-gradient(circle at top left, rgba(96,165,250,.12), transparent 26%),
+        radial-gradient(circle at top right, rgba(52,211,153,.10), transparent 20%),
+        var(--bg);
+      color:var(--text);
+    }
+    .container{
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    h1{
+      text-align:center;
+      margin: 0 0 12px;
+      font-size: clamp(28px, 3vw, 44px);
+      letter-spacing:-.03em;
+    }
+    p.subtitle{
+      text-align:center;
+      color:var(--muted);
+      max-width: 980px;
+      margin: 0 auto 24px;
+      line-height:1.6;
+      font-size:15px;
+    }
+    .card{
+      background:var(--card);
+      border:var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding: 18px;
+      overflow:auto;
+    }
+    .mermaid{
+      min-width: 1200px;
+      background:white;
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .legend{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:center;
+      margin-top:16px;
+      color:var(--muted);
+      font-size:13px;
+    }
+    .pill{
+      padding:8px 12px;
+      border-radius:999px;
+      background:#f8fafc;
+      border:1px solid rgba(148,163,184,.22);
+      box-shadow:0 4px 12px rgba(15,23,42,.05);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Arquitetura Geral — Esperança Solidária</h1>
+    <p class="subtitle">
+      Fluxograma completo com ligação em setas, cobrindo autenticação, doação, publicação de eventos,
+      consumo assíncrono, persistência por serviço e observabilidade.
+    </p>
+
+    <div class="card">
+      <div class="mermaid">
+flowchart LR
+
+%% ===========================
+%% CLIENTE
+%% ===========================
+subgraph Cliente
+  U[Usuário Doador]
+  G[Gestor ONG]
+end
+
+%% ===========================
+%% KUBERNETES
+%% ===========================
+subgraph Kubernetes["Kubernetes Cluster"]
+  direction LR
+
+  %% ---------- USER SERVICE ----------
+  subgraph UserService["UserService"]
+    direction TB
+    USAPI[Web API<br/>Autenticação e Perfil]
+    USDB[(MongoDB<br/>Users + UserMetrics)]
+  end
+
+  %% ---------- CAMPAIGN SERVICE ----------
+  subgraph CampaignService["CampaignService"]
+    direction TB
+    CSAPI[Web API<br/>Campanhas e Totais]
+    CSDB[(MongoDB<br/>Campaigns)]
+  end
+
+  %% ---------- DONATION SERVICE ----------
+  subgraph DonationService["DonationService"]
+    direction TB
+    DSAPI[Web API<br/>Doações]
+    DSDB[(MongoDB<br/>Donations)]
+  end
+
+  %% ---------- RABBITMQ ----------
+  subgraph RabbitMQ["RabbitMQ + MassTransit"]
+    direction TB
+    RMQ[(DonationReceivedEvent)]
+  end
+
+  %% ---------- OBSERVABILITY ----------
+  subgraph Observabilidade["Observabilidade"]
+    direction TB
+    PROM[Prometheus]
+    GRAF[Grafana]
+    ZABB[Zabbix]
+  end
+end
+
+%% ===========================
+%% FLUXO PRINCIPAL
+%% ===========================
+U -->|Login| USAPI
+USAPI -->|Valida credenciais| USDB
+USAPI -->|Gera JWT| U
+
+U -->|Consultar campanhas| CSAPI
+CSAPI -->|Lê dados| CSDB
+CSAPI -->|Lista campanhas| U
+
+G -->|Gerenciar campanhas| CSAPI
+G -->|Consultar usuários| USAPI
+
+U -->|Realizar doação| DSAPI
+DSAPI -->|Valida regra de negócio| DSDB
+DSAPI -->|Publica evento| RMQ
+
+RMQ -->|Consumer| CSAPI
+CSAPI -->|Atualiza total arrecadado| CSDB
+
+RMQ -->|Consumer| USAPI
+USAPI -->|Atualiza UserMetrics| USDB
+
+%% ===========================
+%% OBSERVABILIDADE
+%% ===========================
+USAPI -.->|Métricas / Logs| PROM
+DSAPI -.->|Métricas / Logs| PROM
+CSAPI -.->|Métricas / Logs| PROM
+
+PROM --> GRAF
+USAPI -.->|Monitoramento| ZABB
+DSAPI -.->|Monitoramento| ZABB
+CSAPI -.->|Monitoramento| ZABB
+
+%% ===========================
+%% ESTILO VISUAL
+%% ===========================
+classDef client fill:#eff6ff,stroke:#60a5fa,stroke-width:1.5px,color:#0f172a;
+classDef api fill:#ecfeff,stroke:#06b6d4,stroke-width:1.5px,color:#0f172a;
+classDef db fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#0f172a;
+classDef broker fill:#fff7ed,stroke:#f59e0b,stroke-width:1.5px,color:#0f172a;
+classDef obs fill:#f5f3ff,stroke:#8b5cf6,stroke-width:1.5px,color:#0f172a;
+
+class U,G client;
+class USAPI,CSAPI,DSAPI api;
+class USDB,CSDB,DSDB db;
+class RMQ broker;
+class PROM,GRAF,ZABB obs;
+
+style Cliente fill:#ffffff,stroke:#cbd5e1,stroke-width:1px,rx:12,ry:12
+style Kubernetes fill:#ffffff,stroke:#cbd5e1,stroke-width:1px,rx:12,ry:12
+style UserService fill:#f8fbff,stroke:#dbeafe,stroke-width:1px,rx:12,ry:12
+style CampaignService fill:#f8fbff,stroke:#e9d5ff,stroke-width:1px,rx:12,ry:12
+style DonationService fill:#f8fbff,stroke:#d1fae5,stroke-width:1px,rx:12,ry:12
+style RabbitMQ fill:#fffbeb,stroke:#fde68a,stroke-width:1px,rx:12,ry:12
+style Observabilidade fill:#faf5ff,stroke:#ddd6fe,stroke-width:1px,rx:12,ry:12
+      </div>
+    </div>
+
+    <div class="legend">
+      <span class="pill">Setas sólidas: fluxo principal</span>
+      <span class="pill">Setas tracejadas: observabilidade</span>
+      <span class="pill">Subgraphs: separação por domínio</span>
+      <span class="pill">RabbitMQ: evento assíncrono</span>
+    </div>
+  </div>
+</body>
+</html>
