@@ -1,13 +1,17 @@
 ﻿using CampaignService.Domain.Entities.DTOs;
 using CampaignService.Domain.Interfaces;
+using CampaignService.Domain.Models;
 using EsperancaSolidaria.Contracts.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CampaignService.WebApi.Controllers
 {
+	[Authorize]
 	public class CampaignController(ILogger<CampaignController> logger, ICampaignManagementService service) : StandardController
 	{
 		[HttpGet]
+		[AllowAnonymous]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetCampaigns()
 		{
@@ -16,6 +20,7 @@ namespace CampaignService.WebApi.Controllers
 		}
 
 		[HttpGet("{id}")]
+		[AllowAnonymous]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetCampaign(Guid id)
@@ -25,8 +30,10 @@ namespace CampaignService.WebApi.Controllers
 		}
 
 		[HttpPost]
+		[Authorize(Roles = Roles.GestorONG)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
 		public async Task<IActionResult> CreateCampaign(CreateCampaignDto dto)
 		{
 			logger.LogInformation("Create campaign with title: {title}", dto.Title);
@@ -34,9 +41,11 @@ namespace CampaignService.WebApi.Controllers
 		}
 
 		[HttpPut]
+		[Authorize(Roles = Roles.GestorONG)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
 		public async Task<IActionResult> UpdateCampaign(UpdateCampaignDto dto)
 		{
 			logger.LogInformation("Update campaign with id: {id}", dto.Id);
@@ -44,9 +53,11 @@ namespace CampaignService.WebApi.Controllers
 		}
 
 		[HttpPut("{id}/cancel")]
+		[Authorize(Roles = Roles.GestorONG)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
 		public async Task<IActionResult> CancelCampaign(Guid id)
 		{
 			logger.LogInformation("Cancel campaign with id: {id}", id);

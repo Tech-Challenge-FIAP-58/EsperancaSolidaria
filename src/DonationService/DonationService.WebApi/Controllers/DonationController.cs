@@ -1,10 +1,12 @@
 ﻿using DonationService.Domain.Entities.DTOs;
 using DonationService.Domain.Interfaces;
 using EsperancaSolidaria.Contracts.Controllers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DonationService.WebApi.Controllers
 {
+	[Authorize]
 	public class DonationController(ILogger<DonationController> logger, ICampaignDonationServiceDonationService donationService) : StandardController
 	{
 		[HttpPost]
