@@ -10,7 +10,7 @@ namespace CampaignService.WebApi.Controllers
 	[Authorize]
 	public class CampaignController(ILogger<CampaignController> logger, ICampaignManagementService service) : StandardController
 	{
-		[HttpGet]
+		[HttpGet("public")]
 		[AllowAnonymous]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetPublicCampaigns()
