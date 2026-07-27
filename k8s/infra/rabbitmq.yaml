@@ -44,6 +44,7 @@ spec:
     app: rabbitmq
 
   ports:
+    # AMQP fica so dentro do cluster: os 3 servicos conectam via DNS "rabbitmq"
     - name: amqp
       port: 5672
       targetPort: 5672
@@ -51,8 +52,9 @@ spec:
     - name: management
       port: 15672
       targetPort: 15672
+      nodePort: 30672
 
-  type: ClusterIP
+  type: NodePort
 
 ---
 

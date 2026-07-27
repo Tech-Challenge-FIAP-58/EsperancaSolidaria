@@ -25,6 +25,16 @@ kubectl rollout status deployment/campaign-deployment -n services
 kubectl rollout status deployment/donation-deployment -n services
 kubectl rollout status deployment/user-deployment -n services
 
+Write-Host "`n== Aguardando monitoramento ==" -ForegroundColor Cyan
+kubectl rollout status deployment/prometheus -n monitoring
+kubectl rollout status deployment/zabbix-db -n monitoring
+kubectl rollout status deployment/zabbix-server -n monitoring
+kubectl rollout status deployment/zabbix-web -n monitoring
+kubectl rollout status deployment/grafana -n monitoring
+
+Write-Host "`n== Provisionando hosts e itens no Zabbix ==" -ForegroundColor Cyan
+& "$k8s\infra\zabbix-provision.ps1"
+
 Write-Host "`n== Status ==" -ForegroundColor Cyan
 kubectl get pods,svc -n services
 kubectl get pods,svc -n monitoring
@@ -32,3 +42,7 @@ kubectl get pods,svc -n monitoring
 Write-Host "`nCampaign : http://localhost:30080/swagger"
 Write-Host "Donation : http://localhost:30081/swagger"
 Write-Host "User     : http://localhost:30082/swagger"
+Write-Host ""
+Write-Host "Dashboard  : http://localhost:30300/d/esperanca-solidaria  (admin / esperancagrafana123)"
+Write-Host "Prometheus : http://localhost:30900"
+Write-Host "Zabbix     : http://localhost:30808  (Admin / zabbix)"
