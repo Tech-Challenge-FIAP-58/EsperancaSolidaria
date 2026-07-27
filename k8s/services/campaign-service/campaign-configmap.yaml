@@ -4,4 +4,4 @@ metadata:
   name: campaign-config
   namespace: services
 data:
-  Mongo__Database: "campaign-db"
+  Mongo__Database: "campaign_db"

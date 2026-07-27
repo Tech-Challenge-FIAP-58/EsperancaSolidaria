@@ -4,4 +4,4 @@ metadata:
   name: donation-config
   namespace: services
 data:
-  Mongo__Database: "donation-db"
+  Mongo__Database: "donation_db"
