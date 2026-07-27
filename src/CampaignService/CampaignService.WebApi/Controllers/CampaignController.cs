@@ -15,7 +15,7 @@ namespace CampaignService.WebApi.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetPublicCampaigns()
 		{
-			logger.LogInformation("Get all public campaigns");
+			logger.LogInformation("Get public campaigns");
 			return await ExecuteAsync(() => service.GetPublicCampaigns());
 		}
 
