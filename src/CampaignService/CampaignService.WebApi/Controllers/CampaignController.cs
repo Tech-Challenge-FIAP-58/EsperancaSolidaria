@@ -13,6 +13,15 @@ namespace CampaignService.WebApi.Controllers
 		[HttpGet]
 		[AllowAnonymous]
 		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<IActionResult> GetPublicCampaigns()
+		{
+			logger.LogInformation("Get all public campaigns");
+			return await ExecuteAsync(() => service.GetPublicCampaigns());
+		}
+
+		[HttpGet]
+		[Authorize(Roles = Roles.GestorONG)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetCampaigns()
 		{
 			logger.LogInformation("Get all campaigns");
@@ -20,7 +29,7 @@ namespace CampaignService.WebApi.Controllers
 		}
 
 		[HttpGet("{id}")]
-		[AllowAnonymous]
+		[Authorize(Roles = Roles.GestorONG)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetCampaign(Guid id)
