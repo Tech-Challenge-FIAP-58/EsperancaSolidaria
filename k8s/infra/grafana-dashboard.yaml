@@ -1,0 +1,171 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider
+  namespace: monitoring
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: esperanca-solidaria
+        orgId: 1
+        folder: Esperanca Solidaria
+        type: file
+        disableDeletion: false
+        updateIntervalSeconds: 30
+        allowUiUpdates: true
+        options:
+          path: /etc/grafana/dashboards
+          foldersFromFilesStructure: false
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: monitoring
+data:
+  # Dashboard dos 3 microsservicos alimentado pelo Zabbix.
+  # Cada painel usa host.filter "/.*/" para pegar os 3 hosts do grupo de uma vez.
+  esperanca-solidaria.json: |
+    {
+      "uid": "esperanca-solidaria",
+      "title": "Esperanca Solidaria - Microsservicos",
+      "tags": ["esperanca-solidaria", "zabbix"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-1h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "type": "timeseries",
+          "title": "Process CPU Seconds",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "queryType": "0",
+              "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+              "group": { "filter": "Esperanca Solidaria" },
+              "host": { "filter": "/.*/" },
+              "application": { "filter": "" },
+              "itemTag": { "filter": "" },
+              "item": { "filter": "Process CPU Seconds" },
+              "functions": [],
+              "options": { "showDisabledItems": false, "skipEmptyValues": false }
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "Threads Count",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "queryType": "0",
+              "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+              "group": { "filter": "Esperanca Solidaria" },
+              "host": { "filter": "/.*/" },
+              "application": { "filter": "" },
+              "itemTag": { "filter": "" },
+              "item": { "filter": "Threads Count" },
+              "functions": [],
+              "options": { "showDisabledItems": false, "skipEmptyValues": false }
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "HTTP Total Requests",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "queryType": "0",
+              "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+              "group": { "filter": "Esperanca Solidaria" },
+              "host": { "filter": "/.*/" },
+              "application": { "filter": "" },
+              "itemTag": { "filter": "" },
+              "item": { "filter": "HTTP Total Requests" },
+              "functions": [],
+              "options": { "showDisabledItems": false, "skipEmptyValues": false }
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "type": "timeseries",
+          "title": "Memory Usage",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "custom": { "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" }
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+            "tooltip": { "mode": "multi", "sort": "desc" }
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "queryType": "0",
+              "datasource": { "type": "alexanderzobnin-zabbix-datasource", "uid": "zabbix" },
+              "group": { "filter": "Esperanca Solidaria" },
+              "host": { "filter": "/.*/" },
+              "application": { "filter": "" },
+              "itemTag": { "filter": "" },
+              "item": { "filter": "Memory Usage" },
+              "functions": [],
+              "options": { "showDisabledItems": false, "skipEmptyValues": false }
+            }
+          ]
+        }
+      ]
+    }

@@ -5,3 +5,13 @@ metadata:
   labels:
     name: services
     app: esperanca-solidaria
+
+---
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+  labels:
+    name: monitoring
+    app: esperanca-solidaria

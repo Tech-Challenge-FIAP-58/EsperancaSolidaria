@@ -67,10 +67,10 @@ Monorepo com microsserviços em .NET, comunicação assíncrona via mensageria e
 - **RabbitMQ + MassTransit** — mensageria assíncrona entre serviços
 - **JWT** — autenticação e autorização baseada em roles
 - **xUnit + Moq** — testes unitários
-- **Prometheus** (`prometheus-net`) — métricas via `app.MapMetrics()`
+- **Prometheus** — `prometheus-net` expõe `/metrics` em cada serviço; um servidor Prometheus no cluster faz o scrape a cada 15s
 - **Swagger** — documentação de API em ambiente de desenvolvimento
-- **Kubernetes** — orquestração dos 3 serviços e infra (RabbitMQ, Grafana, Zabbix), manifests em `k8s/`
-- **Zabbix + Grafana** — monitoramento e dashboards de CPU, threads, requisições HTTP e memória dos 3 serviços
+- **Kubernetes** — orquestração dos 3 serviços e da infra (RabbitMQ, Prometheus, Zabbix, Grafana), manifests em `k8s/`
+- **Zabbix + Grafana** — Zabbix coleta o mesmo `/metrics` via HTTP agent; Grafana sobe com as duas datasources e o dashboard já provisionados
 - **GitHub Actions** — CI (build/test/validação de imagem) e CD (publicação no GHCR com scan Trivy e assinatura Cosign) por serviço
 
 ---
@@ -116,11 +116,16 @@ Os manifests ficam em `k8s/`, organizados em namespaces, infraestrutura e servi�
 
 ```
 k8s/
- ├─ namespaces.yaml
+ ├─ deploy.ps1              # atalho: encadeia os kubectl na ordem certa
+ ├─ destroy.ps1             # remove o ambiente inteiro (inclusive os PVCs)
+ ├─ namespaces.yaml         # namespaces "services" e "monitoring"
  ├─ infra/
  │   ├─ grafana.yaml
+ │   ├─ grafana-dashboard.yaml
+ │   ├─ prometheus.yaml
  │   ├─ rabbitmq.yaml
- │   └─ zabbix.yaml
+ │   ├─ zabbix.yaml
+ │   └─ zabbix-import-job.yaml   # Job que carrega a config do Zabbix via API
  └─ services/
      ├─ configmap.yaml
      ├─ secrets.yaml
@@ -129,24 +134,45 @@ k8s/
      └─ user-service/       (configmap, deployment, secrets, service)
 ```
 
-**Deploy no cluster** (Minikube/Kind/Docker Desktop K8s):
+**Deploy no cluster** (Docker Desktop K8s, Minikube ou Kind) — só `kubectl`, funciona em qualquer sistema operacional:
 
 ```bash
-# namespace
 kubectl apply -f k8s/namespaces.yaml
-
-# infraestrutura (RabbitMQ, Grafana, Zabbix)
 kubectl apply -f k8s/infra/
-
-# configs e secrets compartilhados
 kubectl apply -f k8s/services/configmap.yaml
 kubectl apply -f k8s/services/secrets.yaml
-
-# cada microsserviço
 kubectl apply -f k8s/services/campaign-service/
 kubectl apply -f k8s/services/donation-service/
 kubectl apply -f k8s/services/user-service/
 ```
+
+Não há passo manual de configuração do Zabbix: o `zabbix-import-job.yaml` sobe junto com a infra e carrega tudo sozinho. Para acompanhar:
+
+```bash
+kubectl wait --for=condition=complete job/zabbix-import -n monitoring --timeout=900s
+kubectl logs job/zabbix-import -n monitoring
+```
+
+No Windows, os scripts abaixo fazem exatamente isso, na ordem certa e esperando os rollouts:
+
+```powershell
+.\k8s\deploy.ps1
+.\k8s\destroy.ps1
+```
+
+> Para reimportar a config do Zabbix depois de editar o template, apague o Job antes — um Job concluído não roda de novo no `apply`: `kubectl delete job zabbix-import -n monitoring`.
+
+**Acesso** — tudo exposto via `NodePort`, direto no `localhost`:
+
+| | URL | Credenciais |
+|---|---|---|
+| Campaign | http://localhost:30080/swagger | — |
+| Donation | http://localhost:30081/swagger | — |
+| User | http://localhost:30082/swagger | — |
+| Grafana | http://localhost:30300/d/esperanca-solidaria | `admin` / `esperancagrafana123` |
+| Zabbix | http://localhost:30808 | `Admin` / `zabbix` |
+| Prometheus | http://localhost:30900 | — |
+| RabbitMQ | http://localhost:30672 | `EsperancaAdmin` / `EsperancaSolidaria@123` |
 
 **Detalhes de cada deployment de serviço:**
 - Imagem consumida diretamente do GHCR (ex.: `ghcr.io/tech-challenge-fiap-58/campaign-service:latest`), publicada pelo CD.
@@ -212,13 +238,24 @@ Executa os testes unitários (xUnit + Moq) presentes no `UserService` e no `Camp
 ## Observabilidade
 
 - **Health checks:** `/health/live` (liveness) e `/health/ready` (readiness) em cada WebApi.
-- **Métricas:** expostas via Prometheus (`prometheus-net`), com um contador de requisições instrumentado em `Program.cs` de cada serviço.
+- **Métricas:** cada WebApi expõe `/metrics` via `prometheus-net` (`app.UseHttpMetrics()` + `app.MapMetrics()`).
 - **Swagger:** disponível em ambiente de desenvolvimento.
-- **Zabbix → Grafana:** métricas coletadas no Zabbix e visualizadas em dashboards no Grafana, para os três serviços (`campaign-service`, `user-service`, `donation-service`):
-  - Process CPU Seconds
-  - Threads Count
-  - HTTP Total Requests
-  - Memory Usage
+
+O mesmo endpoint `/metrics` alimenta dois coletores independentes:
+
+```
+                     ┌─ Prometheus (scrape, 15s) ──┐
+/metrics dos 3 svc ──┤                             ├──→ Grafana
+                     └─ Zabbix (HTTP agent, 1min) ─┘
+```
+
+- **Prometheus** raspa os três `Service` do namespace `services` via DNS do cluster (config em `k8s/infra/prometheus.yaml`).
+- **Zabbix** usa um item mestre do tipo *HTTP agent*, que baixa o `/metrics` inteiro, e itens dependentes que extraem cada métrica por pré-processamento *Prometheus pattern* — sem precisar de agent dentro dos pods.
+- **Grafana** sobe com as duas datasources e o dashboard já provisionados (`grafana.yaml` e `grafana-dashboard.yaml`), na pasta "Esperanca Solidaria".
+
+Métricas coletadas para os três serviços (`campaign-service`, `donation-service`, `user-service`): Process CPU Seconds, Threads Count, HTTP Total Requests e Memory Usage.
+
+**Config do Zabbix como código:** o Zabbix guarda hosts e itens no banco, não em arquivo — não existe ConfigMap que o servidor leia sozinho. `k8s/infra/zabbix-import-job.yaml` resolve isso dentro do próprio Kubernetes: um `ConfigMap` guarda a configuração no formato de export nativo do Zabbix, e um `Job` a carrega via API (`configuration.import`) assim que a interface web responde. Como o Job faz parte da infra, o `kubectl apply -f k8s/infra/` já deixa o Zabbix configurado — sem script externo e sem dependência de sistema operacional. A operação é idempotente. A URL de cada serviço vem da macro `{$METRICS_URL}`, definida por host no fim do template — para monitorar um quarto serviço, basta acrescentar um host ali.
 
 ---
 

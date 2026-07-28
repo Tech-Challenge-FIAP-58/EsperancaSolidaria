@@ -4,4 +4,4 @@ metadata:
   name: user-config
   namespace: services
 data:
-  Mongo__Database: "user-db"
+  Mongo__Database: "user_db"

@@ -34,12 +34,16 @@ spec:
 
 ---
 
+# AMQP fica so dentro do cluster: os 3 servicos conectam via DNS "rabbitmq",
+# nome referenciado em rabbitMQDefaultHost no services-secrets.
 apiVersion: v1
 kind: Service
 metadata:
   name: rabbitmq
   namespace: services
 spec:
+  type: ClusterIP
+
   selector:
     app: rabbitmq
 
@@ -48,11 +52,25 @@ spec:
       port: 5672
       targetPort: 5672
 
+---
+
+# Painel de gestao, unica porta que precisa sair do cluster.
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-management
+  namespace: services
+spec:
+  type: NodePort
+
+  selector:
+    app: rabbitmq
+
+  ports:
     - name: management
       port: 15672
       targetPort: 15672
-
-  type: ClusterIP
+      nodePort: 30672
 
 ---
 

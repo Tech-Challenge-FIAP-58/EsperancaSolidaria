@@ -60,6 +60,18 @@ namespace CampaignService.Application.Services
 			return Created(true, message: $"Campanha #{campaign.Id} criada com sucesso.");
         }
 
+		public async Task<IApiResponse<List<PublicCampaignDto>>> GetPublicCampaigns()
+		{
+			var campaigns = await repository.GetAllCampaigns();
+			var dtos = new List<PublicCampaignDto>();
+			foreach (var campaign in campaigns.ToList().FindAll(cm => cm.IsActive))
+			{
+				dtos.Add(new PublicCampaignDto(campaign.Title, campaign.FinancialTarget, campaign.CollectedAmount));
+			}
+
+			return Ok(dtos);
+		}
+
 		public async Task<IApiResponse<List<Campaign>>> GetAll()
 		{
             var campaigns = await repository.GetAllCampaigns();

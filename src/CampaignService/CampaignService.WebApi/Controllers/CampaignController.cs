@@ -10,8 +10,17 @@ namespace CampaignService.WebApi.Controllers
 	[Authorize]
 	public class CampaignController(ILogger<CampaignController> logger, ICampaignManagementService service) : StandardController
 	{
-		[HttpGet]
+		[HttpGet("public")]
 		[AllowAnonymous]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<IActionResult> GetPublicCampaigns()
+		{
+			logger.LogInformation("Get all public campaigns");
+			return await ExecuteAsync(() => service.GetPublicCampaigns());
+		}
+
+		[HttpGet]
+		[Authorize(Roles = Roles.GestorONG)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> GetCampaigns()
 		{
@@ -20,7 +29,7 @@ namespace CampaignService.WebApi.Controllers
 		}
 
 		[HttpGet("{id}")]
-		[AllowAnonymous]
+		[Authorize(Roles = Roles.GestorONG)]
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
 		public async Task<IActionResult> GetCampaign(Guid id)
