@@ -23,4 +23,5 @@ Write-Host "`n== Status ==" -ForegroundColor Cyan
 kubectl get ns services monitoring --ignore-not-found
 
 Write-Host "`nAmbiente removido."
-Write-Host "O MongoDB local nao faz parte do cluster. Para parar: docker compose -f src\docker-compose.yml --profile local-mongo down"
+# O banco esta no Atlas. Se voltar a usar o Mongo local:
+# Write-Host "Para parar: docker compose -f src\docker-compose.yml --profile local-mongo down"

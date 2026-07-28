@@ -7,7 +7,10 @@ $k8s = $PSScriptRoot
 Write-Host "`n== Namespaces ==" -ForegroundColor Cyan
 kubectl apply -f "$k8s\namespaces.yaml"
 
-Write-Host "`n== Infraestrutura (RabbitMQ, Grafana, Zabbix) ==" -ForegroundColor Cyan
+# Job concluido nao roda de novo no apply: apaga antes para reimportar o template
+kubectl delete job zabbix-import -n monitoring --ignore-not-found
+
+Write-Host "`n== Infraestrutura (RabbitMQ, Prometheus, Zabbix, Grafana) ==" -ForegroundColor Cyan
 kubectl apply -f "$k8s\infra\"
 
 Write-Host "`n== Config e secrets compartilhados ==" -ForegroundColor Cyan
@@ -32,8 +35,9 @@ kubectl rollout status deployment/zabbix-server -n monitoring
 kubectl rollout status deployment/zabbix-web -n monitoring
 kubectl rollout status deployment/grafana -n monitoring
 
-Write-Host "`n== Provisionando hosts e itens no Zabbix ==" -ForegroundColor Cyan
-& "$k8s\infra\zabbix-provision.ps1"
+Write-Host "`n== Importando configuracao do Zabbix ==" -ForegroundColor Cyan
+kubectl wait --for=condition=complete job/zabbix-import -n monitoring --timeout=900s
+kubectl logs job/zabbix-import -n monitoring
 
 Write-Host "`n== Status ==" -ForegroundColor Cyan
 kubectl get pods,svc -n services

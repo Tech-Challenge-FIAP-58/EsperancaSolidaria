@@ -1,0 +1,266 @@
+# O Zabbix guarda hosts e itens no banco, nao em arquivo: nao existe ConfigMap
+# que o servidor leia. Este Job carrega a configuracao abaixo via API assim que
+# a interface web responde, o que mantem tudo dentro do "kubectl apply".
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zabbix-api-secret
+  namespace: monitoring
+type: Opaque
+stringData:
+  ZBX_USER: "Admin"
+  ZBX_PASSWORD: "zabbix"
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zabbix-template
+  namespace: monitoring
+data:
+  # Formato de export/import nativo do Zabbix.
+  template.yaml: |
+    zabbix_export:
+      version: '7.0'
+
+      template_groups:
+        - uuid: 16c57fd07ced4325b7725b9495b67b98
+          name: Templates/Applications
+
+      host_groups:
+        - uuid: eaed4e2ac6c847e492a4dbec90f4f756
+          name: 'Esperanca Solidaria'
+
+      templates:
+        - uuid: d65882bc301d4c389612655f758b681c
+          template: 'Esperanca Solidaria .NET Service'
+          name: 'Esperanca Solidaria .NET Service'
+          description: 'Coleta o /metrics (prometheus-net) de um microsservico .NET via HTTP agent.'
+
+          groups:
+            - name: Templates/Applications
+
+          macros:
+            - macro: '{$METRICS_URL}'
+              value: 'http://localhost/metrics'
+              description: 'Sobrescrita em cada host com o DNS do Service.'
+
+          items:
+            # Item mestre: baixa o /metrics inteiro. Os demais derivam dele.
+            - uuid: 1098f793009e42b58ec740c6de14a748
+              name: 'Prometheus metrics (raw)'
+              type: HTTP_AGENT
+              key: prometheus.metrics
+              url: '{$METRICS_URL}'
+              delay: 1m
+              history: 1d
+              value_type: TEXT
+
+            - uuid: 800fb34b910d43e3953ed9f130661ba1
+              name: 'Process CPU Seconds'
+              type: DEPENDENT
+              key: esperanca.cpu.seconds
+              value_type: FLOAT
+              units: s
+              history: 7d
+              trends: 30d
+              master_item:
+                key: prometheus.metrics
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - process_cpu_seconds_total
+                    - value
+                    - ''
+
+            - uuid: 1626748699134b4c9bd9de2a2ece70a5
+              name: 'Threads Count'
+              type: DEPENDENT
+              key: esperanca.threads
+              value_type: FLOAT
+              history: 7d
+              trends: 30d
+              master_item:
+                key: prometheus.metrics
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - process_num_threads
+                    - value
+                    - ''
+
+            # http_requests_received_total tem uma serie por code/method/endpoint:
+            # somamos todas em vez de pegar uma so.
+            - uuid: 45d06077ebb1481d9830cfb935f6af78
+              name: 'HTTP Total Requests'
+              type: DEPENDENT
+              key: esperanca.http.requests
+              value_type: FLOAT
+              history: 7d
+              trends: 30d
+              master_item:
+                key: prometheus.metrics
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - http_requests_received_total
+                    - function
+                    - sum
+
+            - uuid: 9f2c1e4a7b3d40c8a1e5d6f70b8c2a31
+              name: 'Memory Usage'
+              type: DEPENDENT
+              key: esperanca.memory
+              value_type: FLOAT
+              units: B
+              history: 7d
+              trends: 30d
+              master_item:
+                key: prometheus.metrics
+              preprocessing:
+                - type: PROMETHEUS_PATTERN
+                  parameters:
+                    - process_working_set_bytes
+                    - value
+                    - ''
+
+      hosts:
+        - host: campaign-service
+          name: 'Campaign Service'
+          groups:
+            - name: 'Esperanca Solidaria'
+          templates:
+            - name: 'Esperanca Solidaria .NET Service'
+          macros:
+            - macro: '{$METRICS_URL}'
+              value: 'http://campaign-service.services.svc.cluster.local/metrics'
+
+        - host: donation-service
+          name: 'Donation Service'
+          groups:
+            - name: 'Esperanca Solidaria'
+          templates:
+            - name: 'Esperanca Solidaria .NET Service'
+          macros:
+            - macro: '{$METRICS_URL}'
+              value: 'http://donation-service.services.svc.cluster.local/metrics'
+
+        - host: user-service
+          name: 'User Service'
+          groups:
+            - name: 'Esperanca Solidaria'
+          templates:
+            - name: 'Esperanca Solidaria .NET Service'
+          macros:
+            - macro: '{$METRICS_URL}'
+              value: 'http://user-service.services.svc.cluster.local/metrics'
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zabbix-import-script
+  namespace: monitoring
+data:
+  import.py: |
+    import json, os, sys, time, urllib.request
+
+    API = 'http://zabbix-zabbix-web/api_jsonrpc.php'
+
+    def call(method, params, token=None):
+        payload = json.dumps({'jsonrpc': '2.0', 'method': method, 'params': params, 'id': 1}).encode()
+        req = urllib.request.Request(API, data=payload, headers={'Content-Type': 'application/json-rpc'})
+        if token:
+            req.add_header('Authorization', 'Bearer ' + token)
+        with urllib.request.urlopen(req, timeout=60) as r:
+            body = json.load(r)
+        if 'error' in body:
+            raise RuntimeError('%s: %s' % (method, body['error']))
+        return body['result']
+
+    # zabbix-web nao tem readiness probe e, com o banco zerado, o schema demora
+    # minutos para ser criado. Se estourar, o Job reinicia e tenta de novo.
+    deadline = time.time() + 600
+    while True:
+        try:
+            print('Zabbix API', call('apiinfo.version', {}), flush=True)
+            break
+        except Exception as e:
+            if time.time() >= deadline:
+                sys.exit('Zabbix nao respondeu em 600s: %s' % e)
+            print('aguardando a API do Zabbix...', flush=True)
+            time.sleep(5)
+
+    token = call('user.login', {'username': os.environ['ZBX_USER'],
+                                'password': os.environ['ZBX_PASSWORD']})
+
+    with open('/template/template.yaml') as f:
+        source = f.read()
+
+    call('configuration.import', {
+        'format': 'yaml',
+        'source': source,
+        'rules': {
+            'template_groups': {'createMissing': True, 'updateExisting': True},
+            'host_groups':     {'createMissing': True, 'updateExisting': True},
+            'templates':       {'createMissing': True, 'updateExisting': True},
+            'hosts':           {'createMissing': True, 'updateExisting': True},
+            'items':           {'createMissing': True, 'updateExisting': True, 'deleteMissing': True},
+            'templateLinkage': {'createMissing': True, 'deleteMissing': False},
+            'valueMaps':       {'createMissing': True, 'updateExisting': True},
+        },
+    }, token)
+
+    groupid = call('hostgroup.get', {'filter': {'name': ['Esperanca Solidaria']}}, token)[0]['groupid']
+    for h in call('host.get', {'groupids': groupid, 'selectItems': ['name']}, token):
+        print('  %s: %d itens' % (h['name'], len(h['items'])), flush=True)
+
+    print('Import concluido. Os primeiros valores chegam em ate 1 minuto.', flush=True)
+
+---
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: zabbix-import
+  namespace: monitoring
+spec:
+  backoffLimit: 6
+
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: import
+          image: python:3.12-alpine
+          command: ["python", "/script/import.py"]
+
+          envFrom:
+            - secretRef:
+                name: zabbix-api-secret
+
+          volumeMounts:
+            - name: script
+              mountPath: /script
+            - name: template
+              mountPath: /template
+
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
+
+      volumes:
+        - name: script
+          configMap:
+            name: zabbix-import-script
+        - name: template
+          configMap:
+            name: zabbix-template
